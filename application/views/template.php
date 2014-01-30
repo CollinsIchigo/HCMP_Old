@@ -189,10 +189,17 @@ if (@@$current == "home_controller") {echo "active";
 	}
 ?>"> Orders </a></li> 
 
-<li><a  href="<?php echo base_url(); ?>Issues_main" class="<?php
+<li><a  class="<?php
 if (@@$current == "Issues_main") {echo "active";
 }
-?>">Issues </a></li>	
+?>">Issues <b class="caret"></b></a>
+<ul>
+                  <li><a href="<?php echo site_url('Issues_main/Index/Internal/'.$facility);?>">Issue to Service Point</a></li>
+                  <li><a href="<?php echo site_url('Issues_main/Index/External/'.$facility);?>">Redistribute Commodities</a></li>
+                  <li><a href="<?php echo site_url('Issues_main/Index/Donation/'.$facility)?>">Recieve Commodities from other Sources</a></li>
+                </ul>
+    	
+</li>
 <!--<a href="<?php echo base_url();?>order_management/all_deliveries/<?php echo $facility?>" class="top_menu_link<?php
 	if ($quick_link == "dispatched_listing_v") {echo " top_menu_active ";
 	}
