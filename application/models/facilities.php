@@ -43,9 +43,9 @@ return $q;
 	if($facility_code!=NULL){
 		$query = Doctrine_Query::create() -> select("*") -> from("facilities")->where("facility_code='$facility_code'");
 		$drugs = $query -> execute();
+		$drugs = $drugs->toArray();
 		
-		
-		return $drugs;	
+		return $drugs[0];	
 	}	
 else{
 	return NULL;

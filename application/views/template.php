@@ -62,23 +62,27 @@ if ($access_level == "dpp") {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo $title; ?></title>
 
-<link rel="icon" href="<?php echo base_url().'Images/coat_of_arms1.png'?>" type="image/x-icon" />
+<link rel="icon" href="<?php echo base_url().'Images/coat_of_arms.png'?>" type="image/x-icon" />
 <link href="<?php echo base_url().'CSS/style.css'?>" type="text/css" rel="stylesheet"/> 
 <link href="<?php echo base_url().'CSS/bootstrap.css'?>" type="text/css" rel="stylesheet"/>
 <link href="<?php echo base_url().'CSS/jquery-ui.css'?>" type="text/css" rel="stylesheet"/>
+ 
 <script src="<?php echo base_url().'Scripts/jquery.js'?>" type="text/javascript"></script> 
+<script src="<?php echo base_url();?>Scripts/HighCharts/highcharts.js"></script>
+<script src="<?php echo base_url();?>Scripts/HighCharts/modules/exporting.js"></script>
+<!--<script src="<?php echo base_url().'Scripts/jquery.form.js'?>" type="text/javascript"></script> -->
 <script src="<?php echo base_url().'Scripts/jquery-ui.js'?>" type="text/javascript"></script>
+<!--<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>-->
+
 <script src="<?php echo base_url().'Scripts/validator.js'?>" type="text/javascript"></script>
 <script src="<?php echo base_url().'Scripts/jquery.validate.js'?>" type="text/javascript"></script> 
+<script src="<?php echo base_url().'Scripts/waypoints.js'?>" type="text/javascript"></script> 
+<script src="<?php echo base_url().'Scripts/waypoints-sticky.min.js'?>" type="text/javascript"></script>
 <script src="<?php echo base_url().'Scripts/bootstrap.js'?>" type="text/javascript"></script>
-<script src="<?php echo base_url().'Scripts/HighCharts/highcharts.js'?>" type="text/javascript"></script>
-<script src="<?php echo base_url().'Scripts/HighCharts/modules/exporting.js'?>" type="text/javascript"></script>
 
-<style>
-	div.ui-datepicker{
- font-size:11px;
-}
-</style>
+<script src="<?php echo base_url();?>Scripts/FusionCharts/FusionCharts.js" type="text/javascript"></SCRIPT>
+	
+ 
 
 <script type="text/javascript">
 
@@ -200,6 +204,7 @@ if (@@$current == "Issues_main") {echo "active";
                 </ul>
     	
 </li>
+
 <!--<a href="<?php echo base_url();?>order_management/all_deliveries/<?php echo $facility?>" class="top_menu_link<?php
 	if ($quick_link == "dispatched_listing_v") {echo " top_menu_active ";
 	}
@@ -292,10 +297,10 @@ if ($quick_link == "new_order") {echo "active";
 <?php if($user_is_rtk_manager){
 	?>
 	<li class="active"><a data-clone="Home" href="<?php echo base_url(); ?>home_controller">Home </a></li>
-	<li><a data-clone="Facility Mapping" href="<?php echo site_url('rtk_management/rtk_mapping'); ?>"  class="<?php
+<!--	<li><a data-clone="Facility Mapping" href="<?php echo site_url('rtk_management/rtk_mapping'); ?>"  class="<?php
 	if ($quick_link == "kemsa_order_v") {echo "active";
 	}
-?>">Facility Mapping</a></li>
+?>">Facility Mapping</a></li>-->
 	<?php } ?>
 <?php if($user_is_moh_user){
 	?>
@@ -399,9 +404,32 @@ if (@@$current == "home_controller") {echo "active";
 </ul>
 </nav>
 </div>
+
+<div class="btn-group " id="btnlogout">
+  <a  class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user icon-white"></i> <?php echo $this -> session -> userdata('names'); ?> <?php echo $this -> session -> userdata('inames'); ?><span style="margin-left: 0.3em;" class="caret"></span></a>
+  
+  <ul class="dropdown-menu" style="font:#FFF;">
+    <li><a href="#"><i class="icon-pencil"></i> Edit Settings</a></li>
+    <li><a href="#myModal" data-toggle="modal" data-target="#myModal" id="changepswd" ><i class="icon-edit"></i> Change password</a></li>
+    
+    
+    <li class="divider"></li>
+    <li><a href="<?php echo base_url(); ?>user_management/logout"><i class=" icon-off"></i> Log Out</a></li>
+  </ul>
+  
+</div>
 <div style="font-size:0.75em; float:right; padding: 0.5em "><?php  echo date('l, dS F Y'); ?>&nbsp;<div id="clock" style="font-size:0.75em; float:right; " ></div>
 	 </div>
-<div  id="system_alerts">
+  	
+</div>
+	 <div>
+	<div class="divide" >
+	
+    			<div   id="banner_text">
+      				<?php echo $this -> session -> userdata('full_name') . ": " . $banner_text; ?>
+            			    				</div>
+    				
+    				<div  id="system_alerts">
       				<?php $flash_success_data = NULL;
 					      $flash_error_data = NULL;
 	                      $flash_success_data = $this -> session -> flashdata('system_success_message');
@@ -415,28 +443,7 @@ if (@@$current == "home_controller") {echo "active";
 							}
  						?>
     				</div>
-   <div class="btn-group " id="btnlogout">
-  <a  class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user icon-white"></i> <?php echo $this -> session -> userdata('names'); ?> <?php echo $this -> session -> userdata('inames'); ?><span style="margin-left: 0.3em;" class="caret"></span></a>
-    <ul class="dropdown-menu" style="font:#FFF;">
-    <li><a href="#"><i class="icon-pencil"></i> Edit Settings</a></li>
-    <li><a href="#myModal" data-toggle="modal" data-target="#myModal" id="changepswd" ><i class="icon-edit"></i> Change password</a></li>
-    <li class="divider"></li>
-    <li><a href="<?php echo base_url(); ?>user_management/logout"><i class=" icon-off"></i> Log Out</a></li>
-  </ul>
-  
-</div>
     				
-
-
-  	
-</div>
-	 <div>
-	<div class="divide" >
-	
-    			<div   id="banner_text">
-      				<?php echo $this -> session -> userdata('full_name') . ": " . $banner_text; ?>
-            			    				</div>
-    						
   				
   				</div>
 
@@ -466,7 +473,7 @@ if (@@$current == "home_controller") {echo "active";
     <div id="errsummary" style=""></div>
   </div>
   
-  <form style="font-size: 0.5em;" class="form-horizontal" action="<?php echo base_url().'User_Management/save_new_password'?>" method="post" id="change">
+  <form class="form-horizontal" action="<?php echo base_url().'User_Management/save_new_password'?>" method="post" id="change">
   <div class="control-group" style="margin-top: 1em;">
     <label class="control-label" for="inputPassword">Old Password</label>
     <div class="controls">
@@ -502,7 +509,7 @@ if (@@$current == "home_controller") {echo "active";
 <script>
 	$(document).ready(function() {
 		
-					$('.alert-success').fadeOut(10000, function() {
+					$('.successreset').fadeOut(10000, function() {
     // Animation complete.
   });
 //$('.errorlogin').fadeOut(10000, function() {
@@ -515,7 +522,7 @@ if (@@$current == "home_controller") {echo "active";
 		$("#my_profile_link").click(function(){
 			$("#logout_section").css("display","block");
 		});
-		
+		$('#top-panel').waypoint('sticky');
 		
 		$('.dropdown-toggle').dropdown();
 

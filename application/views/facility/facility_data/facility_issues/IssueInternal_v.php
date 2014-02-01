@@ -1,6 +1,6 @@
 <div  class='label label-info' style="font-size: 1.8em">To Issue commodities i) select commodity to issue 
 	ii) enter the service point and quanitity you wish to issue and select the batch no
-	iii) to add more issues press add row</div
+	iii) to add more issues press add row</div>
  <?php $att=array("name"=>'myform','id'=>'myform'); echo form_open('Issues_main/Insert',$att); ?>
 <table   class="table table-hover table-bordered table-update" id="example" width="100%" >
 					<thead>
@@ -97,9 +97,9 @@
 				return;
 			}
 			
-			//set the quantities to readonly
-			$(this).closest("tr").find(".Qtyissued").attr('readonly','readonly')
-			
+			//set the quantities to readonly  $("#dropdown").prop("disabled", true);
+			$(this).closest("tr").find(".Qtyissued").attr('readonly','readonly');
+			$(this).closest("tr").find(".batchNo").prop("disabled", true);
 			
 			//reset the values of current element 
 		    var last_row = $('#example tr:last');
@@ -121,7 +121,8 @@
 			cloned_object.find(".commodity_balance").attr('name','commodity_balance['+next_table_row+']');					
             cloned_object.find("input").attr('value',"");     
             cloned_object.find(".Qtyissued").attr('value',"0");   
-            cloned_object.find(".Qtyissued").removeAttr('readonly');    
+            cloned_object.find(".Qtyissued").removeAttr('readonly');  
+            cloned_object.find(".batchNo").prop("disabled", false);  
             cloned_object.find(".commodity_balance").attr('value',"0");            
             cloned_object.find(".batchNo").html("");            
 			cloned_object.find(".remove").show();
@@ -133,21 +134,30 @@
 		
 		/// remove the row
 		$('.remove').live('click',function(){
-			var row_id=$(this).index();
+			var row_id=$(this).closest("tr").index();
 		   
 			var bal=parseInt($(this).closest("tr").find(".Qtyissued").val());
 			
-            var commodity_stock_id=parseInt($(this).closest("tr").find(".commodity_id").val());
+            var commodity_stock_id=parseInt($(this).closest("tr").find(".drug_id").val());
            
             var total=0;
 			
 			$("input[name^=commodity_id]").each(function(index, value) {
-				var new_id=$(this).attr("id");
-                //alert("new id"+new_id+" row id "+row_id+" id"+$(this).val()+" stock_id "+commodity_stock_id)
+				
+			var new_id=$(this).closest("tr").index();
+			var total_current_issues=$(this).closest("tr").find(".Qtyissued").val();
+			var current_drug_id=$(this).closest("tr").find(".drug_id").val();
+   
                   if(new_id>row_id && parseInt($(this).val())==commodity_stock_id){
                   	 
                    var value=parseInt($("input[name='AvStck["+new_id+"]']").val())+bal;  ///AvStck
                    $("input[name='AvStck["+new_id+"]']").val(value);
+                  }
+                  
+                  if(new_id>row_id && current_drug_id==commodity_stock_id){
+                
+                   var value=parseInt($(this).closest("tr").find(".commodity_balance").val())+bal;  ///AvStck
+                   $(this).closest("tr").find(".commodity_balance").val(value);
                   }
                  
 		        });
@@ -158,7 +168,7 @@
       
       ///when changing the commodity combobox
       		$(".desc").live('change',function(){
-      		var row_id=$(this).index();	
+      		var row_id=$(this).closest("tr").index();	
       		if(parseInt(row_id)==0){
       		var prv_id=parseInt(row_id);	
       		}
@@ -211,6 +221,7 @@
 			  				 drug_id_current=id_value[0];
 			  			}else{
 			  				dropdown+="<option title="+id_value[2]+"^"+id_value[3]+"^"+id_value[5]+"^"+id_value[6]+">";
+			  				 total_stock_bal=id_value[6];
 			  			}
 			  			
 						dropdown+=id_value[1];						
@@ -238,18 +249,19 @@
 		         * use this value to reduce the value of the total value of the commodity*/	        
 		        $("input[name^=drug_id]").each(function(index, value) {
 		        	
-                 var row_id_=$(this).index();
+                 var row_id_=$(this).closest("tr").index();
                  
                   var total_current_issues=$(this).closest("tr").find(".Qtyissued").val();
-                  
-                  if($(this).val()==drug_id_current && row_id<row_id_){
+                 
+                  if($(this).val()==drug_id_current && row_id_<row_id){
+                  	
                    total_issues=parseInt(total_current_issues)+total_issues;
+                   //alert(total_issues);
                   }
                  
 		        });
 		        
-		        var remaining_items=bal-total;
-		        
+		        var remaining_items=bal-total;		        
 				locator.closest("tr").find(".batchNo").html(dropdown);
 				locator.closest("tr").find(".exp_date").val(""+new_date+"" );
 				locator.closest("tr").find(".AvStck").val(remaining_items);	
@@ -257,13 +269,11 @@
 				locator.closest("tr").find(".commodity_balance").val(total_stock_bal-total_issues);		
 								
 			});
-
-
 		});
 		
 		/////batch no change event
 		$('.batchNo').live('change',function(){
-			var row_id=$(this).index();
+			var row_id=$(this).closest("tr").index();
 		    var locator=$('option:selected', this);
 			var data =$('option:selected', this).attr('title'); 
 	       	var data_array=data.split("^");	
@@ -273,21 +283,25 @@
 	       	var total_issues=0;
 	       	var commodity_stock_row_id;
 	       	var remaining_items=0;
-	       	var bal=parseInt($("input[name='Qtyissued["+row_id+"]']").val());			
+	       	var bal=parseInt($("input[name='Qtyissued["+row_id+"]']").val());
+	      	var total_stock_bal=0
             var commodity_stock_id_old=parseInt($("input[name='commodity_id["+row_id+"]']").val());
             var drug_id_current='';
           
               
 	       	$("input[name='commodity_id["+row_id+"]']").val(data_array[2]);
 	       	$("input[name='commodity_balance["+row_id+"]']").val(data_array[3]);
-	       	
+	       	total_stock_bal=data_array[3];
 	       	if(data_array[0]!=''){
+	       		
 	       	new_date=$.datepicker.formatDate('d M yy', new Date(data_array[0]));	
 	       	val=data_array[1];
 	       	commodity_stock_row_id=data_array[2];
-            drug_id_current=data_array[3];
+            drug_id_current=parseInt($("input[name='drug_id["+row_id+"]']").val());
 	        remaining_items=val-total;
+	        
 	        locator.closest("tr").find(".exp_date").val(""+new_date+"");
+	        
 			locator.closest("tr").find(".AvStck").val(remaining_items);
 			
 			locator.closest("tr").find(".Qtyissued").val("0");	
@@ -297,14 +311,14 @@
 	       		
 	       	locator.closest("tr").find(".exp_date").val("");
 			locator.closest("tr").find(".AvStck").val("");
-			$("input[name='Qtyissued["+row_id+"]']").removeAttr('readonly');	
 			locator.closest("tr").find(".Qtyissued").val("0");
 				
 	       	}
 	       	
 	       	$("input[name^=commodity_id]").each(function(index, value) {
-	       		  var element_id=$(this).attr('id');
-                  if(element_id>row_id && $(this).val()==commodity_stock_id_old){                 	
+	       		  var element_id=$(this).closest("tr").attr('id');
+                  if(element_id>row_id && $(this).val()==commodity_stock_id_old){ 
+                           	
                    var value=parseInt($("input[name='AvStck["+element_id+"]']").val())+bal;  ///AvStck
                    $("input[name='AvStck["+element_id+"]']").val(value);
                   }
@@ -316,34 +330,31 @@
 		         * use this value to reduce the value of the total value of the commodity*/	        
 		        $("input[name^=drug_id]").each(function(index, value) {
 		        	
-                 var row_id_=$(this).index();                 
+                 var row_id_=$(this).closest("tr").index();                 
                  var total_current_issues=$(this).closest("tr").find(".Qtyissued").val();
-                 var current_balance_issues=  $(this).closest("tr").find(".commodity_balance").val();
-                 
-                  if($(this).val()==drug_id_current && row_id<row_id_){
+                
+                  if($(this).val()==drug_id_current && row_id_<row_id){
                    total_issues=parseInt(total_current_issues)+total_issues;
+                  
                   }
-                  if($(this).val()==drug_id_current && row_id>row_id_){
-                  $(this).closest("tr").find(".commodity_balance").val(parseInt(current_balance_issues)+bal);
-                  }
-                 
+                  
 		        });
 		        
 		       locator.closest("tr").find(".commodity_balance").val(total_stock_bal-total_issues);	
-
       });
         //entering the values to issue check if you have enough balance
         $(".Qtyissued").live('keyup',function (){
-            var row_id=$(this).index();
+            var row_id=$(this).closest("tr").index();
         	var bal=parseInt($(this).closest("tr").find(".AvStck").val());
         	var drug_id_current=parseInt($(this).closest("tr").find(".desc").val());
         	var issues=$(this).val();
         	var remainder=bal-issues;
-        	
+
         		if (remainder<0) {
 						$(this).val("0");
 						$(this).focus();
 						alert("Can not issue beyond available stock");
+						return;
 					}
 					else{
 						
@@ -352,19 +363,58 @@
 					    $(this).val("0");
 					    $(this).focus();
 					    alert("Issued value must be above 0");
+					    return;
 					}
 					if(issues.indexOf('.') > -1) {
 						$(this).val("0");
 						$(this).focus();
 						alert("Decimals are not allowed.");
+						return;
 							}
 					if (isNaN(issues)){
 						$(this).val("0");
 						$(this).focus();
 						alert('Enter only numbers');
+						return;
 				}
 
         });
+
+        	//	-- Datepicker		
+		json_obj = {
+				"url" : "<?php echo base_url().'Images/calendar.gif';?>",
+				};
+	    var baseUrl=json_obj.url;
+	
+     $( ".my_date" ).datepicker({
+			showOn: "both",
+			dateFormat: 'd M yy', 
+			buttonImage: baseUrl,
+			buttonImageOnly: true,
+			changeMonth: true,
+			changeYear: true,
+			maxDate: new Date()
+		});
+
+	function refreshDatePickers() {		
+		var counter = 0;
+		$('.my_date').each(function() {
+		var this_id = $(this).attr("id"); // current inputs id
+        var new_id = counter +1; // a new id
+        $(this).attr("id", new_id); // change to new id
+        $(this).removeClass('hasDatepicker'); // remove hasDatepicker class
+        $(this).datepicker({ 
+                    maxDate: new Date(),
+        	        dateFormat: 'd M yy', 
+        	        buttonImage: baseUrl,
+					changeMonth: true,
+			        changeYear: true
+				});; // re-init datepicker
+				counter++;
+		});
+		
+		
+  }
       /////// save button
      var $myDialog = $('<div></div>')
     .html('Please confirm the values before saving')
@@ -403,39 +453,5 @@
 				return $myDialog.dialog('open');			
 			});
 		
-		//	-- Datepicker		
-		json_obj = {
-				"url" : "<?php echo base_url().'Images/calendar.gif';?>",
-				};
-	    var baseUrl=json_obj.url;
 	
-     $( ".my_date" ).datepicker({
-			showOn: "both",
-			dateFormat: 'd M yy', 
-			buttonImage: baseUrl,
-			buttonImageOnly: true,
-			changeMonth: true,
-			changeYear: true,
-			maxDate: new Date()
-		});
-
-	function refreshDatePickers() {		
-		var counter = 0;
-		$('.my_date').each(function() {
-		var this_id = $(this).attr("id"); // current inputs id
-        var new_id = counter +1; // a new id
-        $(this).attr("id", new_id); // change to new id
-        $(this).removeClass('hasDatepicker'); // remove hasDatepicker class
-        $(this).datepicker({ 
-                    maxDate: new Date(),
-        	        dateFormat: 'd M yy', 
-        	        buttonImage: baseUrl,
-					changeMonth: true,
-			        changeYear: true
-				});; // re-init datepicker
-				counter++;
-		});
-		
-		
-  }
 </script>
