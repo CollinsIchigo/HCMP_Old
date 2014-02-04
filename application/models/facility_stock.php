@@ -612,7 +612,8 @@ public static function get_decom_count($district)
 	// get the stocks for a given facility 
 	
 	public static function get_facility_stock_detail($facility_code){
-			$query = Doctrine_Query::create() -> select("*") -> from("facility_stock")->where("facility_code=$facility_code and status='1'")->andwhere("balance>0");
+			$query = Doctrine_Query::create() -> select("*") -> 
+			from("facility_stock")->where("facility_code=$facility_code and status='1'")->andwhere("balance>0");
 		$stocktake = $query ->execute();
 		
 		return $stocktake;

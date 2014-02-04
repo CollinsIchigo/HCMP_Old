@@ -436,7 +436,7 @@
                 	var checker=0;
                 	$("input[name^=commodity_id]").each(function() {
                 		checker=checker+1;
-                		
+                	$(this).closest("tr").find(".batchNo").removeAttr('disabled'); 		
                 	});
 
                 	if(checker<1){

@@ -231,15 +231,15 @@ $data .='</table>';
 		$data['quick_link'] = "commodity_list";
 		$this -> load -> view("template", $data);
 	}
+	
 	public function commodity_list(){
 		$data['title'] = "Commodity Search";
-		$data['content_view'] = "new_order_v2";
+		$data['content_view'] = "shared_files/commodity_list";
 		$data['banner_text'] = "Commodity List";
-		$data['link'] = "order_management";
-		$data['drug_categories'] = Drug_Category::getAll();
-		$data['quick_link'] = "commodity_list";
+		$data['drug_categories'] = Drug::getAll();
 		$this -> load -> view("template", $data);
 	}
+	
 	public function reports_Home()
 	{
 		

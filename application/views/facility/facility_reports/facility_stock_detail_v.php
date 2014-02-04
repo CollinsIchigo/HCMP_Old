@@ -163,14 +163,14 @@ $( "#dialog1" ).dialog({
                                 $usize=$d->Unit_Size;}
                                 foreach($d->Category as $cat){
 				
-			$cat_name=$cat;	
+			$cat_name=$cat->Category_Name;	
 				
 			}
                                 ?>
                            <?php echo form_hidden('id['.$count.']', $drug->id);?>
                             <?php echo form_hidden('kemsa_code['.$count.']', $drug->kemsa_code);?>
                             
-                            <td><?php echo $cat?></td>
+                            <td><?php echo $cat_name?></td>
                             <td><?php echo $name?></td>
                             <td ><?php echo $code;?></td>
                             <td ><?php echo $usize;?></td>

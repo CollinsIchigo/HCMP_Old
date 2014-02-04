@@ -456,7 +456,6 @@ public function get_facility_stock_details($confirmation_message=NULL){
 	    $data['title'] = "Edit Stock Details";
 		$data['content_view'] = "facility/facility_reports/facility_stock_detail_v";
 		$data['banner_text'] = "Edit Stock Details";	
-		$data['quick_link'] = "new_update";	
 		$data['confirmation_message']=$confirmation_message;
 		$data['facility_stock_details']=facility_stock::get_facility_stock_detail($facility_code);			
 		$this -> load -> view("template", $data);

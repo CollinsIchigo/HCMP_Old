@@ -1,13 +1,11 @@
 <script type="text/javascript" language="javascript" src="<?php echo base_url(); ?>Scripts/jquery.dataTables.js"></script>
-		<script type="text/javascript" charset="utf-8" src="<?php echo base_url(); ?>DataTables-1.9.3/extras/TableTools-2.0.0/media/js/ZeroClipboard.js"></script>
-		<script type="text/javascript" charset="utf-8" src="<?php echo base_url(); ?>DataTables-1.9.3/extras/TableTools-2.0.0/media/js/TableTools.js"></script>
-		<style type="text/css" title="currentStyle">
-			
+<script type="text/javascript" charset="utf-8" src="<?php echo base_url(); ?>DataTables-1.9.3/extras/TableTools-2.0.0/media/js/ZeroClipboard.js"></script>
+<script type="text/javascript" charset="utf-8" src="<?php echo base_url(); ?>DataTables-1.9.3/extras/TableTools-2.0.0/media/js/TableTools.js"></script>
+<style type="text/css" title="currentStyle">			
 			@import "<?php echo base_url(); ?>DataTables-1.9.3 /media/css/jquery.dataTables.css";
 			@import "<?php echo base_url(); ?>DataTables-1.9.3/extras/TableTools-2.0.0/media/css/TableTools.css";
 		</style>
 		<style>
-
 			.warning2 {
 	background: #FEFFC8 url('<?php echo base_url()?>Images/excel-icon.jpg') 20px 50% no-repeat;
 	border: 1px solid #F1AA2D;
@@ -39,11 +37,21 @@ $earliest_year = $current_year - 10;
 				} );
 			} );
 		</script>
+		
+		<div class="tabbable">
+			<ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab"><h4>KEMSA</h4></a></li>
+    <li><a href="#tab2" data-toggle="tab">Section 2</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+		
 		<div style="margin-left: 80%" >
 		<a href="<?php echo site_url('report_management/commodity_excel');?>">
 			<div class="activity excel"><h2> Download</h2></div>
 			</a></div>
-						<table  style="margin-left: 0;" id="example" width="100%">
+			
+				<table  style="margin-left: 0;" id="example" width="100%">
 					<thead>
 					<tr>
 						<th><b>Category</b></th>
@@ -61,19 +69,24 @@ $earliest_year = $current_year - 10;
 						foreach($category->Category as $drug):?>
 							
 						<tr>
+
 							
-							
-							<td><?php echo $category->Category_Name?></td>
-							<td><?php echo $drug->Drug_Name;?></td>
-							<td><?php echo $drug->Kemsa_Code;?></td>
-							<td> <?php echo $drug->Unit_Size;?> </td>
-							<td><?php echo $drug->Unit_Cost;?> </td>
+							<td><?php echo $drug->Category_Name?></td>
+							<td><?php echo $category->Drug_Name;?></td>
+							<td><?php echo $category->Kemsa_Code;?></td>
+							<td> <?php echo $category->Unit_Size;?> </td>
+							<td><?php echo $category->Unit_Cost;?> </td>
 						</tr>
 						
 						<?php endforeach;?>
 		<?php endforeach;?>
 		</tbody>
-						
-						
+	
 				</table>
+				</div>
+    <div class="tab-pane" id="tab2">
+     
+    </div>
+  </div>
+</div>
  

@@ -31,6 +31,7 @@
 						<option value="TB Clinic">TB Clinic</option>
 						<option value="MCH">MCH</option>
 						<option value="Diabetic Clinic">Diabetic Clinic</option>
+						<option value="Youth Friendly Services">Youth Friendly Services</option>
 						
 					</select>
 						</td>
@@ -58,7 +59,7 @@
 						<input type="hidden" name="drug_id[0]" value="" class="drug_id"/>	
 						<input type="text" class="input-small kemsa_code" readonly="readonly" name="kemsa_code[]"/></td>
 			            <td><input  type="text" class="input-small unit_size" readonly="readonly"  /></td>
-						<td><select class=" input-small batchNo" name="batchNo[0]"></select></td>
+						<td><select class="input-small batchNo" name="batchNo[0]"></select></td>
 						<td><input type='text' class='input-small exp_date' value="" name='expiry_date[0]' readonly="readonly"  /></td>
 						<td><input class='input-small AvStck' type="text" name="AvStck[0]" readonly="readonly" /></td>
 						<td><input class='input-small Qtyissued' type="text" value="0"  name="Qtyissued[0]" /></td>
@@ -99,7 +100,7 @@
 			
 			//set the quantities to readonly  $("#dropdown").prop("disabled", true);
 			$(this).closest("tr").find(".Qtyissued").attr('readonly','readonly');
-			$(this).closest("tr").find(".batchNo").prop("disabled", true);
+			$(this).closest("tr").find(".batchNo").attr("disabled", true);
 			
 			//reset the values of current element 
 		    var last_row = $('#example tr:last');
@@ -122,7 +123,7 @@
             cloned_object.find("input").attr('value',"");     
             cloned_object.find(".Qtyissued").attr('value',"0");   
             cloned_object.find(".Qtyissued").removeAttr('readonly');  
-            cloned_object.find(".batchNo").prop("disabled", false);  
+            cloned_object.find(".batchNo").removeAttr('disabled'); 
             cloned_object.find(".commodity_balance").attr('value',"0");            
             cloned_object.find(".batchNo").html("");            
 			cloned_object.find(".remove").show();
@@ -429,7 +430,7 @@
                 	var checker=0;
                 	$("input[name^=commodity_id]").each(function() {
                 		checker=checker+1;
-                		
+                	$(this).closest("tr").find(".batchNo").removeAttr('disabled'); 		
                 	});
 
                 	if(checker<1){
@@ -437,7 +438,7 @@
                 		$(this).dialog("close"); 
                 	}
                 	else{
-                		
+                	  
                 	$(this).dialog("close"); 
                      $( "#myform" ).submit();
                       return true;	
