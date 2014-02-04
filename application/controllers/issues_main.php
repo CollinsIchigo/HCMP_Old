@@ -144,10 +144,6 @@ class Issues_main extends auto_sms {
 		$ids=$_POST['drug_id'];		
 	    $Available=$_POST['commodity_balance'];
 		$batchN=$_POST['batchNo'];
-		echo "<pre>";
-		print_r($batchN);
-		echo "</pre>";
-		exit;
 		$Expiry=$_POST['expiry_date'];
 		$qty=$_POST['Qtyissued'];
 		$thedate=$_POST['date_issue'];
