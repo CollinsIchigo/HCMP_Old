@@ -71,6 +71,7 @@ box-shadow: 1px 1px 1px 3px #DDD3ED;
                 <li ><a  href="#" id="consumption"><h3>Consumption</h3></a></li>                
                 <li><a  href="#" id="stock_level"><h3>Stock Levels</h3></a></li>              
                 <li><a  href="#" id='expiries'><h3>Expiries</h3></a></li>
+                <li><a  href="#" id='facility_data'><h3>Statistics</h3></a></li>
                 <li><a  href="#" id="system_usage"><h3>System Up take</h3></a></li>
               </ul>
             </nav>
@@ -94,14 +95,14 @@ box-shadow: 1px 1px 1px 3px #DDD3ED;
 });
 
 		$('#consumption').focus();
-		var url = "<?php echo base_url().'report_management/cons_new/'?>";	
+		var url = "<?php echo base_url().'report_management/consumption_data/'?>";	
 		ajax_request_special(url,'.graph-section','','system_usage');	
 		$("#system_usage").click(function(){	
 		var url = "<?php echo base_url().'report_management/get_county_facility_mapping_data/'?>";	
 		ajax_request_special(url,'.graph-section','','system_usage');	
 	    });	    
 	    $("#consumption").click(function(){
-		var url = "<?php echo base_url().'report_management/cons_new/'?>";	
+		var url = "<?php echo base_url().'report_management/consumption_data/'?>";	
 		ajax_request_special(url,'.graph-section','','consumption');	
 	    });	    
 	     $("#stock_level").click(function(){
@@ -111,6 +112,10 @@ box-shadow: 1px 1px 1px 3px #DDD3ED;
 	     $("#expiries").click(function(){
 		var url = "<?php echo base_url().'report_management/load_county_cost_of_expiries_graph_view/'?>";	
 		ajax_request_special(url,'.graph-section','','expiries');	
+	    });
+	     $("#facility_data").click(function(){
+		var url = "<?php echo base_url().'report_management/facility_data_stats/'?>";	
+		ajax_request_special(url,'.graph-section','','facility_data');	
 	    });
 	 	$("#filter_system_usage").live( "click", function() {
         var url = "<?php echo base_url().'report_management/get_county_facility_mapping_data/'?>"+$("#year_filter").val()+"/"+$("#month_filter").val();	

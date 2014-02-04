@@ -95,14 +95,14 @@
 });
 
 		$('#consumption').focus();
-		var url = "<?php echo base_url().'report_management/cons_new/'?>";	
+		var url = "<?php echo base_url().'report_management/consumption_data/'?>";	
 		ajax_request_special(url,'.graph-section','','system_usage');	
 		$("#system_usage").click(function(){	
 		var url = "<?php echo base_url().'report_management/get_county_facility_mapping_data/'?>";	
 		ajax_request_special(url,'.graph-section','','system_usage');	
 	    });	    
 	    $("#consumption").click(function(){
-		var url = "<?php echo base_url().'report_management/cons_new/'?>";	
+		var url = "<?php echo base_url().'report_management/consumption_data/'?>";	
 		ajax_request_special(url,'.graph-section','','consumption');	
 	    });	    
 	     $("#stock_level").click(function(){

@@ -72,7 +72,6 @@ if ($access_level == "dpp") {
 <script src="<?php echo base_url();?>Scripts/HighCharts/modules/exporting.js"></script>
 <!--<script src="<?php echo base_url().'Scripts/jquery.form.js'?>" type="text/javascript"></script> -->
 <script src="<?php echo base_url().'Scripts/jquery-ui.js'?>" type="text/javascript"></script>
-<!--<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>-->
 
 <script src="<?php echo base_url().'Scripts/validator.js'?>" type="text/javascript"></script>
 <script src="<?php echo base_url().'Scripts/jquery.validate.js'?>" type="text/javascript"></script> 
@@ -404,7 +403,20 @@ if (@@$current == "home_controller") {echo "active";
 </ul>
 </nav>
 </div>
-
+<div  id="system_alerts">
+      				<?php $flash_success_data = NULL;
+					      $flash_error_data = NULL;
+	                      $flash_success_data = $this -> session -> flashdata('system_success_message');
+						  $flash_error_data = $this -> session -> flashdata('system_error_message');
+							if ($flash_success_data != NULL) {
+							echo '<div class="alert alert-success alert-dismissable" >
+							<button type="button" class=" close" data-dismiss="alert" aria-hidden="true">×</button>' . $flash_success_data . '</div>';
+						   } elseif ($flash_error_data != NULL) {
+							echo '<div class="alert alert-danger alert-dismissable" >
+							<button type="button" class=" close" data-dismiss="alert" aria-hidden="true">×</button>' . $flash_error_data . '</div>';
+							}
+ 						?>
+    				</div>
 <div class="btn-group " id="btnlogout">
   <a  class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user icon-white"></i> <?php echo $this -> session -> userdata('names'); ?> <?php echo $this -> session -> userdata('inames'); ?><span style="margin-left: 0.3em;" class="caret"></span></a>
   
@@ -429,22 +441,7 @@ if (@@$current == "home_controller") {echo "active";
       				<?php echo $this -> session -> userdata('full_name') . ": " . $banner_text; ?>
             			    				</div>
     				
-    				<div  id="system_alerts">
-      				<?php $flash_success_data = NULL;
-					      $flash_error_data = NULL;
-	                      $flash_success_data = $this -> session -> flashdata('system_success_message');
-						  $flash_error_data = $this -> session -> flashdata('system_error_message');
-							if ($flash_success_data != NULL) {
-							echo '<div class="alert alert-success alert-dismissable" >
-							<button type="button" class=" close" data-dismiss="alert" aria-hidden="true">×</button>' . $flash_success_data . '</div>';
-						   } elseif ($flash_error_data != NULL) {
-							echo '<div class="alert alert-danger alert-dismissable" >
-							<button type="button" class=" close" data-dismiss="alert" aria-hidden="true">×</button>' . $flash_error_data . '</div>';
-							}
- 						?>
-    				</div>
-    				
-  				
+    			  				
   				</div>
 
 
@@ -509,7 +506,7 @@ if (@@$current == "home_controller") {echo "active";
 <script>
 	$(document).ready(function() {
 		
-					$('.successreset').fadeOut(10000, function() {
+					$('.alert-success').fadeOut(10000, function() {
     // Animation complete.
   });
 //$('.errorlogin').fadeOut(10000, function() {
@@ -522,7 +519,7 @@ if (@@$current == "home_controller") {echo "active";
 		$("#my_profile_link").click(function(){
 			$("#logout_section").css("display","block");
 		});
-		$('#top-panel').waypoint('sticky');
+		
 		
 		$('.dropdown-toggle').dropdown();
 
