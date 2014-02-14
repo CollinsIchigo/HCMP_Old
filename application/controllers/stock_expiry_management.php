@@ -713,7 +713,11 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
      
 	
    if(!$this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
+
    	delete_files('./pdf/'.$report_name.'.pdf');
+
+   //	delete_files('./pdf/'.$report_name.'.pdf');
+
    	$this->session->set_flashdata('system_success_message', 'Stocks Have Been Decommissioned');
 	redirect("/");
    }

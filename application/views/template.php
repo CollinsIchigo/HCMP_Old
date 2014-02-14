@@ -416,7 +416,7 @@ if (@@$current == "home_controller") {echo "active";
 							<button type="button" class=" close" data-dismiss="alert" aria-hidden="true">×</button>' . $flash_error_data . '</div>';
 							}
  						?>
-    				</div>
+ </div>
 <div class="btn-group " id="btnlogout">
   <a  class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user icon-white"></i> <?php echo $this -> session -> userdata('names'); ?> <?php echo $this -> session -> userdata('inames'); ?><span style="margin-left: 0.3em;" class="caret"></span></a>
   
