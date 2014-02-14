@@ -532,8 +532,6 @@ public function generate_decommission_report_pdf($report_name,$title,$html_data)
 public function Decommission() {
 	//Change status of commodities to decommissioned
 
-	
-	
 	   $date= date('Y-m-d');
 	   $facility=$this -> session -> userdata('news');
 	   $facility_code=$this -> session -> userdata('news');
@@ -541,28 +539,24 @@ public function Decommission() {
 	
 		$facility_name_array=Facilities::get_facility_name_($facility_code);
 		$facility_name=$facility_name_array['facility_name'];
-		$districtName = $this->session->userdata('full_name');
-		
-		
-		 $myobj1 = Doctrine::getTable('Districts')->find($facility_name_array['district']);
-			$disto_name=$myobj1->district;
-			$county=$myobj1->county;
-			$myobj2 = Doctrine::getTable('Counties')->find($county);
-			$county_name=$myobj2->county;
-			$myobj3 = Doctrine::getTable('user')->find($user_id);
-			$creator_name1=$myobj3 ->fname;
-			$creator_name2=$myobj3 ->lname;
-			
-			
+		$districtName = $this->session->userdata('full_name' );
+
+		$myobj1 = Doctrine::getTable('Districts')->find($facility_name_array['district']);
+		$disto_name=$myobj1->district;
+		$county=$myobj1->county;
+		$myobj2 = Doctrine::getTable('Counties')->find($county);
+		$county_name=$myobj2->county;
+		$myobj3 = Doctrine::getTable('user')->find($user_id);
+		$creator_name1=$myobj3 ->fname;
+		$creator_name2=$myobj3 ->lname;
+
 			$total=0;
-		
-			
 			//Create PDF of Expired Drugs that are to be decommisioned. check here 
 			$decom=Facility_Stock::get_facility_expired_stuff($date,$facility);
 			
 			
 			//create the report title
-		$html_title="<div ALIGN=CENTER><img src='Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
+	$html_title="<div ALIGN=CENTER><img src='Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
     
        <div style='text-align:center; font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 14px;'>
        Ministry of Health</div>
@@ -715,16 +709,15 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
    if(!$this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
 
    	delete_files('./pdf/'.$report_name.'.pdf');
-
-   //	delete_files('./pdf/'.$report_name.'.pdf');
-
    	$this->session->set_flashdata('system_success_message', 'Stocks Have Been Decommissioned');
 	redirect("/");
+	
    }
    else{
-   	
+   		
     $this->session->set_flashdata('system_error_message', 'An error occured, the items were decommissioned but there was a problem in sending an email file:'.$report_name.'.pdf');
 	redirect("/");	
+	
    }
 			
   }
