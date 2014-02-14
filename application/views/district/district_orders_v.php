@@ -185,7 +185,7 @@ HTML_DATA;
 			$order_total=$delivered_details['orderTotal'];
 			$order_total=number_format($order_total, 2, '.', ',');
 			$link=base_url().'order_management/update_order/'.$delivered_details['id'];
-			$link2=base_url().'order_approval/district_order_details/'.$delivered_details['id'];
+			$link2=base_url().'order_approval/district_order_details/'.$delivered_details['id']."/1/1/1/1";;
 		    $rejected_data .= <<<HTML_DATA
             <tr>
            <td>$district</td>
@@ -212,7 +212,7 @@ HTML_DATA;
 			$order_total=$delivered_details['orderTotal'];
 			$order_total=number_format($order_total, 2, '.', ',');
 			$link=base_url().'order_management/update_order/'.$delivered_details['id']; 
-			$link2=base_url().'order_approval/district_order_details/'.$delivered_details['id'];
+			$link2=base_url().'order_approval/district_order_details/'.$delivered_details['id']."/1/1/1/1";;
 			
 		    $approved_data .= <<<HTML_DATA
             <tr>

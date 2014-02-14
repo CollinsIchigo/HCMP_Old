@@ -133,17 +133,17 @@ GROUP BY fs.kemsa_code*/
 		$stocks= $query -> execute();
 		return $stocks[0];
 	}
-	public static function getexp($facility,$status=NULL){
+public static function getexp($facility,$status=NULL){
 		
-		$query=($status!='decommission')? Doctrine_query::create()->select("f_s.kemsa_code,ROUND( (
-SUM( f_s.balance ) / d.total_units ) * d.unit_cost, 1
+		$query=($status!='decommission')? Doctrine_query::create()->select("f_s.kemsa_code,round( (
+SUM( f_s.balance ) / d.total_units ) * d.unit_cost,1
 ) AS total")->from("Facility_Stock f_s, drug d")->where ("facility_code='$facility' and `expiry_date` <= NOW( ) and f_s.kemsa_code=d.id and STATUS =( 1
-OR 2 ) and balance >0")->groupby("f_s.kemsa_code") : 
-Doctrine_query::create()->select("f_s.kemsa_code,ROUND( (
-SUM( f_s.balance ) / d.total_units ) * d.unit_cost, 1) AS total")
+OR 2 ) and balance >0")->groupby("f_s.batch_no") : 
+Doctrine_query::create()->select("f_s.kemsa_code,round( (
+SUM( f_s.balance ) / d.total_units ) * d.unit_cost,1) AS total")
 ->from("Facility_Stock f_s, drug d")
 ->where ("facility_code='$facility' and `expiry_date` <= NOW( ) and f_s.kemsa_code=d.id and STATUS =1 and balance >0")
-->groupby("f_s.kemsa_code");
+->groupby("f_s.batch_no");
 
 		
 		$expire=$query->execute();
@@ -152,7 +152,7 @@ SUM( f_s.balance ) / d.total_units ) * d.unit_cost, 1) AS total")
 	}
 	public static function get_facility_expired_stuff($date,$facility){
 	$inserttransaction = Doctrine_Manager::getInstance()->getCurrentConnection()
-->fetchAll("SELECT d.id as drug_id,d.kemsa_code,d.unit_size,d.drug_name,d.unit_cost,f_s.batch_no,f_s.manufacture,
+->fetchAll("SELECT d.id as drug_id,d.kemsa_code,d.unit_size,d.drug_name,d.unit_cost,f_s.batch_no,f_s.manufacture,d.total_units,
 sum(f_s.balance) as balance ,f_s.expiry_date 
 from facility_stock f_s, drug d 
 where f_s.kemsa_code=d.id and 

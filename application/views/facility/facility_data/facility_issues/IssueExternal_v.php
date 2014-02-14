@@ -386,6 +386,50 @@
 				}
 
         });
+             ///// county district facility filter 
+       $('.district').live("change", function() {
+			/*
+			 * when clicked, this object should populate district names to district dropdown list.
+			 * Initially it sets default values to the 2 drop down lists(districts and facilities) 
+			 * then ajax is used is to retrieve the district names using the 'dropdown()' method that has
+			 * 3 arguments(the ajax url, value POSTed and the id of the object to populated)
+			 */
+	        var locator =$('option:selected', this);
+
+			json_obj={"url":"<?php echo site_url("order_management/getFacilities");?>",}
+			var baseUrl=json_obj.url;
+			var id=$(this).val();
+		    var dropdown;
+			$.ajax({
+			  type: "POST",
+			  url: baseUrl,
+			  data: "district="+id,
+			  success: function(msg){
+
+			  		var values=msg.split("_");
+			  		var txtbox;
+
+			  		for (var i=0; i < values.length-1; i++) {
+			  			var id_value=values[i].split("*");	
+			  					  			
+			  			dropdown+="<option value="+id_value[0]+">";
+						dropdown+=id_value[1];						
+						dropdown+="</option>";		  			
+
+		  		}
+	
+			  },
+			  error: function(XMLHttpRequest, textStatus, errorThrown) {
+			       if(textStatus == 'timeout') {}
+			   }
+			}).done(function( msg ) {
+			
+				locator.closest("tr").find(".facility").html(dropdown);
+
+			});	
+			
+		});	
+
 
         	//	-- Datepicker		
 		json_obj = {

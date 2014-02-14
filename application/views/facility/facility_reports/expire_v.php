@@ -147,7 +147,7 @@ padding: 5px;
 					            $unitS=$d->Unit_Size; 
 								$unitC=$d->Unit_Cost;
 								$calc=$drug->balance;
-								$balance=round($calc/$total_units);
+								$balance=round(($calc/$total_units),1);
 								$total_expired=$drug->total;
 								$total=round($total+$total_expired,1);
 								$thedate=$drug->expiry_date;

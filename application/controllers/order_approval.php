@@ -19,27 +19,28 @@ include_once('auto_sms.php');
 	}
 	
 	public function district_orders($msg=NULL){
-		$district_id=$this -> session -> userdata('district');
+		//$district_id=$this -> session -> userdata('district');
 		$district_id=$this -> session -> userdata('district1');
 		
 		$data['title'] = "Subcounty Orders";
 		$data['content_view'] = "district/district_orders_v";
 		$data['banner_text'] = "Subcounty Orders";
-		$data['order_counts']=Counties::get_county_order_details("",$district_id);
-		$data['delivered']=Counties::get_county_received("",$district_id);
-		$data['pending']=Counties::get_pending_county("",$district_id);
-		$data['approved']=Counties::get_approved_county("",$district_id);
-		$data['rejected']=Counties::get_rejected_county("",$district_id);
+		$data['order_counts']=Counties::get_county_order_details(null,$district_id,null);
+		$data['delivered']=Counties::get_county_received(null,$district_id,null);
+		$data['pending']=Counties::get_pending_county(null,$district_id,null);
+		$data['approved']=Counties::get_approved_county(null,$district_id,null);
+		$data['rejected']=Counties::get_rejected_county(null,$district_id,null);
 
 		$this -> load -> view("template", $data);
 		
 	}
-	public function district_order_details($delivery,$facility_code=null,$for_facility=null,$rejected_order=null){
+	public function district_order_details($delivery,$facility_code=null,$for_facility=null,$rejected_order=null,$view=null){
 	
 		$data['title'] = "Order detail View";
      	$data['content_view'] = isset($for_facility)? "facility/facility_data/facility_orders/facility_update_order_v" :"district/moh_orderdetail_v";
 		$data['banner_text'] = "Order detail View";
 		$data['link'] = "home";
+		$data['view']=$view;
 		$data['rejected_order']=$rejected_order;
 		$data['drug_name']=Drug::get_drug_name();
 		$data['quick_link'] = "moh_order_v";

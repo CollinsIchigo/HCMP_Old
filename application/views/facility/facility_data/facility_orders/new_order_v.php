@@ -491,16 +491,16 @@ function update_transaction(baseUrl,data_array){
     <option>--Select Commodity Name--</option>
     <?php 
 		foreach($drug_name as $category):
-                             $cat=''.$category->Category_Name.'';
-					echo  $cat;
+                            
+				
 						foreach($category->Category as $drug):
-							
-						     $drug_id=$drug->id;
-							 $id= $drug->Kemsa_Code;							
-							 $cat= $category->Category_Name;
-							 $unit_size= $drug->Unit_Size;
-							 $cost= $drug->Unit_Cost;
-							 $county=$drug->Drug_Name;?>
+							// $cat=''.$drug->Category_Name.'';
+						     $drug_id=$category->id;
+							 $id= $category->Kemsa_Code;							
+							 $cat= $drug->Category_Name;
+							 $unit_size= $category->Unit_Size;
+							 $cost= $category->Unit_Cost;
+							 $county=$category->Drug_Name;?>
 					
 						<option value="<?php echo $id.'|'.$cost.'|'.$unit_size.'|'.$cat.'|'. $drug_id;?>"><?php echo $county;?></option>				
 		<?php endforeach;
@@ -513,15 +513,13 @@ function update_transaction(baseUrl,data_array){
 					</tbody>
 					</table>
 </div>
-	
+	<br />
 	<?php $attributes = array( 'name' => 'myform', 'id'=>'myform');
 	 echo form_open('Order_Management/makeOrder',$attributes); ?>
 	
 	 <div id="notification">Enter Order Quantity and Comment</div>
 	 <div id="notification">Order Quantity= (Monthly Consumption * 4) - Closing Stock</div>
-	  
-<div>
-</div>
+
 <table>
 	<tr>
 		<td>

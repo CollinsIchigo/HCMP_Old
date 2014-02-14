@@ -190,8 +190,8 @@ return;
   /*******************************************************printing out the pop out form***********************************/   	
         $("input[name^=cost]").each(function(i) {
         $( "#user-order tbody" ).append( "<tr>" +
-							"<td>" +$(document.getElementsByName("drugCode["+i+"]")).val()+ "</td>" +
-							"<td>" +$(document.getElementsByName("drugName["+i+"]")).val()+ "</td>" +
+							"<td>" +$(document.getElementsByName("kemsa_code["+i+"]")).val()+ "</td>" +
+							"<td>" +$(document.getElementsByName("name["+i+"]")).val()+ "</td>" +
 							"<td>" +$(document.getElementsByName("quantity["+i+"]")).val()+ "</td>" +	
 							"<td>" +number_format($(document.getElementsByName("price["+i+"]")).val(), 2, '.', ',')+ "</td>" +	
 							"<td>" +number_format($(document.getElementsByName("cost["+i+"]")).val(), 2, '.', ',')+ "</td>" +													
@@ -319,30 +319,46 @@ echo form_hidden('rejected_order', $rejected_order);?>
 		<?php foreach($rows->Code as $drug)
 		foreach($drug->Category as $cat){
 				
-			$cat_name=$cat;	
+			$cat_name=$cat->Category_Name;	
 				
 			}
 			echo "<td>$cat_name</td>";
 		
 		$cost=$drug->Unit_Cost; $t_cost=$cost*$ordered;
-		
-   echo form_hidden('closing_stock_['.$count.']'  ,$c_stock).form_hidden('price['.$count.']'  ,$drug->Unit_Cost).form_hidden('unit_size['.$count.']'  ,$drug->Unit_Size).'<td>'.$drug->Drug_Name.'</td>
+ $class=($view)? "readonly='readonly'" : null;
+   echo form_hidden('closing_stock_['.$count.']'  ,$c_stock).
+   form_hidden('price['.$count.']'  ,$drug->Unit_Cost).
+   form_hidden('kemsa_code['.$count.']'  ,$drug->Kemsa_Code).
+   form_hidden('name['.$count.']'  ,$drug->Drug_Name).
+   form_hidden('unit_size['.$count.']'  ,$drug->Unit_Size).
+   '<td>'.$drug->Drug_Name.'</td>
          <td>'.$drug->Kemsa_Code.'</td>
 		 <td>'.$drug->Unit_Size.'</td>
 		 <td>'.$drug->Unit_Cost.'</td>';?>
-		<td><input style="border: none" readonly="readonly" class="user" type="text"<?php echo 'name="open['.$count.']"'; ?>  value="<?php echo $rows->o_balance;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="receipts['.$count.']"'; ?>  value="<?php echo $rows->t_receipts;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="issues['.$count.']"'; ?>  value="<?php echo $t_issues;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="adjustments['.$count.']"'; ?> value="<?php echo $rows->adjust;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="losses['.$count.']"'; ?> value="<?php echo $rows->losses;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="closing['.$count.']"'; ?> value="<?php echo $c_stock;?>" /></td>
-		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php echo 'name="days['.$count.']"'; ?> value="<?php echo $rows->days;?>" /></td>
-		<td ><input style="border: none" class="user" readonly="readonly" type="text" <?php echo 'name="historical['.$count.']"'; ?> value="<?php echo $rows->historical_consumption;?>"/></td>
-		<td><input  style="border: none" class="user" readonly="readonly" class="user2" type="text" value="" <?php echo 'name="suggested['.$count.']"'; ?> /></td>	
-		<td><input class="user2" type="text" value="<?php echo $ordered;?>" <?php echo 'name="quantity['.$count.']"';?> onkeyup="<?php echo 'checker('.$count.','.$thr.')';?>"/></td>
-		<td><input class="user" readonly="readonly" style="border: none" type="text" <?php echo 'name="actual_quantity['.$count.']"';?> value="0"/></td>
-		<td><input class="user2" type="text" value="<?php echo  ceil($t_cost);?>" <?php echo 'name="cost['.$count.']"';?>/></td>
-		<td><input class="user2" type="text" value="<?php echo $rows->comment;?>"/></td>
+		<td><input style="border: none" readonly="readonly" class="user" type="text"<?php 
+		echo 'name="open['.$count.']"'; ?>  value="<?php echo $rows->o_balance;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="receipts['.$count.']"'; ?>  value="<?php echo $rows->t_receipts;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="issues['.$count.']"'; ?>  value="<?php echo $t_issues;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="adjustments['.$count.']"'; ?> value="<?php echo $rows->adjust;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="losses['.$count.']"'; ?> value="<?php echo $rows->losses;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="closing['.$count.']"'; ?> value="<?php echo $c_stock;?>" /></td>
+		<td><input style="border: none" class="user" readonly="readonly" type="text"<?php 
+		echo 'name="days['.$count.']"'; ?> value="<?php echo $rows->days;?>" /></td>
+		<td ><input style="border: none" class="user" readonly="readonly" type="text" <?php 
+		echo 'name="historical['.$count.']"'; ?> value="<?php echo $rows->historical_consumption;?>"/></td>
+		<td><input  style="border: none" class="user" readonly="readonly" class="user2" 
+			type="text" value="" <?php echo 'name="suggested['.$count.']"'; ?> /></td>	
+		<td><input class="user2" type="text" value="<?php echo $ordered;?>" <?php
+		 echo 'name="quantity['.$count.']" '.$class.'';?> onkeyup="<?php echo 'checker('.$count.','.$thr.')';?>"/></td>
+		<td><input class="user" readonly="readonly" style="border: none" type="text" <?php 
+		echo 'name="actual_quantity['.$count.']"';?> value="0"/></td>
+		<td><input class="user2" type="text" readonly='readonly' value="<?php echo  ceil($t_cost);?>" <?php echo 'name="cost['.$count.']"';?>/></td>
+		<td><input class="user2" type="text" <?php echo $class;?> value="<?php echo $rows->comment;?>"/></td>
 			
 	</tr> 
 	<?php
@@ -355,7 +371,10 @@ echo form_hidden('rejected_order', $rejected_order);?>
 <br />
 
 <?php echo form_close(); ?>
+<?php  if($view):  else:?>
+
 <button class="btn btn-primary"  id="approve">Update Order</button> 
+<?php endif; ?>
 <!--------order processing data---------->
 <div class="modal fade" id="order_processing" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog">

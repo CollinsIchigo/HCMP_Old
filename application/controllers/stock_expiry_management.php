@@ -249,9 +249,7 @@ public function expired($facility_code=NULL) {
 		:$facility_code;
 		
 		$district=$this -> session -> userdata('district1');
-		$district=$this -> session -> userdata('district');
-		
-		
+
 		$data['dpp_array']=User::get_dpp_details($district)->toArray();
 
 		$data['title'] = "Expired Products";
@@ -534,12 +532,14 @@ public function generate_decommission_report_pdf($report_name,$title,$html_data)
 public function Decommission() {
 	//Change status of commodities to decommissioned
 
+	
+	
 	   $date= date('Y-m-d');
 	   $facility=$this -> session -> userdata('news');
 	   $facility_code=$this -> session -> userdata('news');
 	   $user_id=$this -> session -> userdata('user_id');
 	
-		$facility_name_array=Facilities::get_facility_name($facility_code)->toArray();
+		$facility_name_array=Facilities::get_facility_name_($facility_code);
 		$facility_name=$facility_name_array['facility_name'];
 		$districtName = $this->session->userdata('full_name');
 		
@@ -618,9 +618,11 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 					            $unitS=$drug['unit_size'];
 								$unitC=$drug['unit_cost'];
 								$calc=($drug['balance']);
+								$total_units=$drug['total_units'];
 								$thedate=$drug['expiry_date'];
-							
-								$cost=$calc*$unitC;
+							    $balance=round(($calc/$total_units),1);
+								$cost=$balance*$unitC;
+								$formatme=new DateTime(	$thedate);
 								$myvalue= $formatme->format('d M Y');	
 								$total=$total+$cost;
 								
@@ -638,8 +640,8 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 			'issued_to' => 'N/A',
 			'issued_by' => $this -> session -> userdata('identity')
 			);
-			 $now= new DateTime();
-			 $seconds_diff = strtotime($now) - strtotime($myvalue);
+			
+			 $seconds_diff =strtotime(date("y-m-d"))-strtotime($myvalue);
 			 $date_diff=floor($seconds_diff/3600/24);
 			
 			Facility_Issues::update_issues_table($mydata3);
@@ -708,9 +710,9 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 	     redirect("/");	
              }
                   else{
-      $this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf');
-	  exit; 
-   if( $this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
+     
+	
+   if(!$this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
    	delete_files('./pdf/'.$report_name.'.pdf');
    	$this->session->set_flashdata('system_success_message', 'Stocks Have Been Decommissioned');
 	redirect("/");

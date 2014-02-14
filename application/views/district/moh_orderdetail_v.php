@@ -328,7 +328,7 @@ return;
 		<?php foreach($rows->Code as $drug)
 		foreach($drug->Category as $cat){
 				
-			$cat_name=$cat;	
+			$cat_name=$cat->Category_Name;	
 				
 			}
 			echo "<td>$cat_name</td>";

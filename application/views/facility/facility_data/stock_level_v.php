@@ -133,15 +133,11 @@ $( "#dialog1" ).dialog({
 
 <?php if(isset($msg)): ?>
 <div id="notification">    
-<div style="float: left"><?php echo $msg." .";?></div>
+<div style="float: left"><?php echo $msg." ";?></div>
 <div style="float: left; margin-left: 1em"><?php 
-$fechaa = new DateTime($max_date[0]['MAX']);
-		$today=new DateTime();
-        $datea= $fechaa->format(' d  M Y h:i:s A');
-		
-
-$diff=$interval = $fechaa->diff($today);
-$d= $diff->format("%a days");
+$datea = date('d M, Y', strtotime($max_date[0]['MAX']));
+$seconds_diff = time()-strtotime($datea);
+$d = floor($seconds_diff / 3600 / 24);
 
 echo "The Last Stock Update was as at : $datea , $d ago, by ".$name_of_person[0]["fname"]." ".$name_of_person[0]['lname'] ;?></div>
 </div>
@@ -192,12 +188,12 @@ echo "The Last Stock Update was as at : $datea , $d ago, by ".$name_of_person[0]
                                 $usize=$d->Unit_Size;}
                                 foreach($d->Category as $cat){
 				
-			$cat_name=$cat;	
+			$cat_name=$cat->Category_Name;	
 				
 			}
                                 ?>
                             <?php echo form_hidden('id['.$count.']', $drug->id);?>
-                            <td><?php echo $cat?></td>
+                            <td><?php echo $cat_name?></td>
                             <td><?php echo $name?></td>
                             <td ><?php echo $code;?></td>
                             <td ><?php echo $usize;?></td>

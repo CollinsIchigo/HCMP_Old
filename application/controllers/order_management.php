@@ -19,7 +19,7 @@ class Order_Management extends auto_sms {
 		$data['content_view'] = "facility/facility_data/facility_orders/new_order_v";
 		$data['banner_text'] = "New Order";
 		$data['link'] = "order_management";
-		$data['drug_name']=Drug_Category::getAll();				
+		$data['drug_name']=Drug::getAll();				
 		$data['facility_order'] = Facility_Transaction_Table::get_commodities_for_ordering($facility_c);
 		$data['quick_link'] = "new_order";
 		$this -> load -> view("template", $data);

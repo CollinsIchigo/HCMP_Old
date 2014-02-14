@@ -56,11 +56,19 @@ return $q;
 		return $query;
 	}
 	public static function get_county_order_details($county_id,$district_id=NUll,$facility_code=null){
-		
-		$and_data =(isset($district_id)&& ($district_id>0)) ?"AND d.id = '$district_id'" : 
-		(isset($facility_code)&& ($facility_code>0)) ? "AND f.facility_code =$facility_code": "AND d.county =$county_id" ;
+
 		
 		
+		if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id =$district_id" ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county =$county_id" ;
+				
+			else:
+				$and_data =" AND f.facility_code =$facility_code" ;
+				endif;
+	
 		$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("SELECT 
 		(SELECT COUNT(o.id) FROM ordertbl o, facilities f, districts d 
 		WHERE o.orderStatus like '%pending%' 
@@ -80,8 +88,7 @@ return $q;
 		 WHERE o.orderStatus like '%rejected%'  
 		 AND o.facilityCode=f.facility_code
 		 AND f.district=d.id
-		 $and_data) as rejected_orders
-		");
+		 $and_data) as rejected_orders");
 		return $query;
 	}
 
@@ -152,8 +159,16 @@ group by f.facility_code");
 		return $query;
 	}
 	public static function get_county_received($county_id,$district_id=NUll,$facility_code=null){
-$and_data =(isset($district_id)&& ($district_id>0)) ?" AND d.id = '$district_id'" : 
-		(isset($facility_code)&& ($facility_code>0)) ? " AND f.facility_code =$facility_code": " AND d.county =$county_id" ;
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
 				
 			
 		
@@ -180,8 +195,16 @@ group by f.facility_code having temp.id>0");
    
 	}
 	public static function get_pending_county($county_id,$district_id=NUll,$facility_code=null){
-$and_data =(isset($district_id)&& ($district_id>0)) ?" AND d.id = '$district_id'" : 
-		(isset($facility_code)&& ($facility_code>0)) ? " AND f.facility_code =$facility_code": " AND d.county =$county_id" ;
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
 		
 
 				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
@@ -195,8 +218,16 @@ $and_data");
 		   return $query;
 	}
 		public static function get_rejected_county($county_id,$district_id=NUll,$facility_code=null){
-$and_data =(isset($district_id)&& ($district_id>0)) ?"AND d.id = '$district_id'" : 
-		(isset($facility_code)&& ($facility_code>0)) ? "AND f.facility_code =$facility_code": "AND d.county =$county_id" ;
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
 		
 	
 				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
@@ -211,8 +242,16 @@ $and_data");
 	}
 	
 		public static function get_approved_county($county_id,$district_id=NUll,$facility_code=null){
-$and_data =(isset($district_id)&& ($district_id>0)) ?"AND d.id = '$district_id'" : 
-		(isset($facility_code)&& ($facility_code>0)) ? "AND f.facility_code =$facility_code": "AND d.county =$county_id" ;
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
 		//'%approved%'
 
 				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
