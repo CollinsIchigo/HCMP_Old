@@ -1,5 +1,6 @@
 <script type="text/javascript">
 $(function() {
+	<?php  $header=""; $data_response=count(json_decode($commodity_name));  if($data_response>0): ?>
         $('#container').highcharts({
             chart: {
                 type: 'bar'
@@ -34,6 +35,11 @@ $(function() {
                 data: <?php echo $monthly_values; ?>
             }]
         });
+          <?php else: ?>
+		 var loading_icon="<?php echo base_url().'Images/no-record-found.png'; 
+		// $header="<br><div align='center' class='label label-info '>Commodity consumption level for  $month $year $county</div>" ?>";
+		 $("#container").html("<img style='margin-left:20%;' src="+loading_icon+">");
+		  <?php endif; ?>
     });
     
 

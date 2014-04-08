@@ -6,7 +6,7 @@ class Drug_Category extends Doctrine_Record {
 
 	public function setUp() {
 		$this -> setTableName('drug_category');
-		$this -> hasMany('Drug as Category', array('local' => 'id', 'foreign' => 'Drug_Category'));
+		$this -> hasOne('Drug as Category', array('local' => 'id', 'foreign' => 'Drug_Category'));
 	}
 
 	public static function getAll() {

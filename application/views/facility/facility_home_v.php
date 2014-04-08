@@ -10,13 +10,12 @@ $access_level = $this -> session -> userdata('user_indicator');
 		text-align: center;
 		margin: 0 0 0.625em 0;
 		border-right-style: inset;
-
 	}
 </style>
 <SCRIPT LANGUAGE="Javascript" SRC="<?php echo base_url();?>Scripts/FusionCharts/FusionCharts.js"></SCRIPT>
 <script type="text/javascript">
 $(document).ready(function(){
-	
+	$("#pop").popover({trigger :'hover', delay: { show:200, hide: 1000 }});
 	
     
         var url = "<?php echo base_url()."report_management/get_district_facility_stock_/bar2d_facility/$facility"?>";	
@@ -52,7 +51,7 @@ $(document).ready(function(){
 </script>
 
 <div id="main_content">
-	<div id="left_content">
+	<div id="left_content" style="padding-top: 2.5em">
 		<fieldset>
 			<legend>Notifications</legend>
 			<!--<?php if($incomplete_order > 0): ?>
@@ -143,10 +142,10 @@ $(document).ready(function(){
 			
        if ($histrorical_count<100){?> 
 		<div class="message warning">
-<h2>2. Incomplete Historical Stock (<?php echo $histrorical_count ?>% complete)</h2>
+<h2>2. Incomplete Average Monthly Consumption (<?php echo $histrorical_count ?>% complete)</h2>
 			<p>
 				<a href="<?php 
-				echo site_url('stock_management/historical_stock_take');?>" <a class="link"> Please provide your historical stock information (<?php
+				echo site_url('stock_management/historical_stock_take');?>" <a class="link"> Please provide your Average Monthly Consumption information (<?php
 				
 				echo ($histrorical_count==0)? $total_drugs : $percentage_complete[0]['balance'] ; 
 				?> commodities remaining) </a>
@@ -172,18 +171,34 @@ $(document).ready(function(){
 		<a href="<?php echo site_url('Issues_main/Index/Internal/'.$facility);?>"><h2>Issue Commodities to Sevice Points</h2></a>
 		</div>
 		<div class="activity ext">
-		<a href="<?php echo site_url('Issues_main/Index/External/'.$facility);?>"><h2>Donate Commodities</h2></a>
+		<a href="<?php echo site_url('Issues_main/Index/External/'.$facility);?>"><h2>Redistribute Commodities to other facilities</h2></a>
 		</div>	
 		<!--<div class="activity order">
 		<a href="<?php echo site_url('Report_Management/Write_report')?>"><h2>Enter Facility Malaria Report</h2></a>
 		</div>-->
 
 		<div class="activity ext">
-		<a href="<?php echo site_url('Issues_main/Index/Donation/'.$facility)?>"><h2>Receive Donation From Other Sources</h2></a>
+		<a href="<?php echo site_url('Issues_main/Index/Donation/'.$facility)?>"><h2>Receive Commodities From Other Sources</h2></a>
 		</div>
-		<div class="activity order">
-		<a href="<?php echo site_url('order_management/new_order');?>">	<h2>Order Commodities</h2></a>
-		</div>
+		
+		<!-- <div class="btn-group" style="margin-left:15%">
+    <button class="btn dropdown-toggle" data-toggle="dropdown">
+     <a>Order Commodities</a>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+     <li><a class="link"  href="<?php echo site_url('order_management/new_order');?>">KEMSA</a></li> 
+    </ul>
+  </div>-->
+		<a id="pop" title="" 
+		data-content="<ol type='i'><li><a href='<?php echo site_url('order_management/new_order');?>'>KEMSA</a></li></ol>" 
+		data-placement="right" data-toggle="popover" 
+	
+		data-original-title="" data-html="true">
+		<div class="activity order"><h2>Order Commodities</h2></div></a>
+		
+		
+		
 		<div class="activity update_order">
 		<a href="<?php echo site_url('order_management/#tabs-2');?>"><h2>Update Order Delivery</h2>	</a>
 		</div>
@@ -207,25 +222,25 @@ $(document).ready(function(){
 	    <a href="<?php echo site_url('stock_management/facility_first_run');?>"><h2>Update Stock Level</h2>	</a>
 		</div>
 		<div class="activity update">
-	    <a href="<?php echo site_url('stock_management/historical_stock_take');?>"><h2>Provide Historical Stock Data</h2></a>
+	    <a href="<?php echo site_url('stock_management/historical_stock_take');?>"><h2>Provide Average Monthly Consumption Data</h2></a>
 		</div>
 	<?php }else if (count($percentage_complete)==0){?> 
 	
 		<div class="activity update">
-	    <a href="<?php echo site_url('stock_management/historical_stock_take');?>"><h2>Provide Historical Stock Data</h2></a>
+	    <a href="<?php echo site_url('stock_management/historical_stock_take');?>"><h2>Provide Average Monthly Consumption Data</h2></a>
 		</div>
 	
 		<?php }?>
 		
 		</fieldset>
+		
+		
 	</div>
-	<div id="right_content">
+	<div id="right_content" style="padding-top: 2.5em">
 
 		<h2 style="margin-bottom: 1.5em">Commodity Stock Level in Pack Size</h2>
-        <h4>Mouse over to see values</h4>
-	
-		
-			<div id="stock_status" class='stockstatuschart' style="overflow: scroll; height: 80em; min-height:100%; margin: 0;">
+        <h3>Mouse over the graph to see values</h3>
+	    <div id="stock_status" class='stockstatuschart' style="overflow: auto; height: 80em; min-height:100%; margin: 0;">
 				
 			
 		</div>

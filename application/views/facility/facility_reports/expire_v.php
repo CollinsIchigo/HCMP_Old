@@ -109,7 +109,7 @@ padding: 5px;
 	
 <div>
 	<img src="<?php echo base_url().'Images/coat_of_arms.png'?>" style="position:absolute;  width:90px; width:90px; top:0px; left:0px; margin-bottom:-100px;margin-right:-100px;"></img>
-       
+
        <span style="margin-left:100px;  font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 15px;">
      Ministry of Health</span><br>
        <span style=" font-size: 12px;  margin-left:100px;">Health Commodities Management Platform</span><span style="text-align:center;" >
@@ -118,24 +118,19 @@ padding: 5px;
 					$today= ( date('d M, Y')); 
 					echo $today;					
 				?></h2>
-       
-       
-      
-       	<hr/> 
-        
-        	
 </div>
 <table class="data-table">
 	
 	<tr>
-		<th>KEMSA Code</th>
+		<th>Source</th>
+		<th>Item Code</th>
 		<th>Description</th>
 		<th>Batch No Affected</th>
 		<th>Manufacturer</th>
 		<th>Expiry Date</th>
 		<th>Unit size</th>
 		<th>Stock Expired (Packs)</th>
-		<th>Unit Cost</th>
+		<th>Unit Cost (KSH)</th>
 		<th>Total Cost(KSH)</th>
 	</tr>
 	
@@ -148,22 +143,26 @@ padding: 5px;
 				foreach($drug->Code as $d){
 						        $total_units=$d->total_units ;
 								$name=$d->Drug_Name;
-								$code=$d->Kemsa_Code;
+								$code1=$d->Kemsa_Code;
 					            $unitS=$d->Unit_Size; 
 								$unitC=$d->Unit_Cost;
 								$calc=$drug->balance;
-								$balance=round($calc/$total_units);
+								$balance=round(($calc/$total_units),1);
 								$total_expired=$drug->total;
 								$total=round($total+$total_expired,1);
 								$thedate=$drug->expiry_date;
 								$formatme = new DateTime($thedate);
 								 $myvalue= $formatme->format('d M Y');
-							
+								 
+							foreach($d->CommoditySourceName as $test):
+					$code=$test->source_name;
+					endforeach;
 								?>
 				
 						<tr>
 							
 							<td><?php echo $code;?> </td>
+						    <td><?php echo $code1;?> </td>
 							<td><?php echo $name;?></td>
 							<td><?php echo $drug->batch_no;?> </td>
 							<td><?php echo $drug->manufacture;?> </td>
@@ -180,7 +179,7 @@ padding: 5px;
 	                      }
 
 					?>	
-			<tr><td colspan="7" ></td><td><b>TOTAL (KSH) </b></td><td><b><?php echo number_format($total, 2, '.', ','); ?></b></td></tr>
+			<tr><td colspan="8" ></td><td><b>TOTAL (KSH) </b></td><td><b><?php echo number_format($total, 2, '.', ','); ?></b></td></tr>
 		
 	 </tbody>
 </table>

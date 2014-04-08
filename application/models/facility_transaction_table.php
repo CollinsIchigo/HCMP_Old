@@ -73,10 +73,10 @@ class Facility_Transaction_Table extends Doctrine_Record {
 	}
 	
 	public static function get_if_drug_is_in_table($facility_code,$drug_id){
-	$query = Doctrine_Query::create() -> select("*") -> from("Facility_Transaction_Table")->where("Facility_Code='$facility_code' and kemsa_code=$drug_id ")->andwhere("availability='1'");
-		$previous = $query -> execute();
-		
-		$drugs = $previous -> count();
+	$query = Doctrine_Query::create() -> select("*") -> from("Facility_Transaction_Table")
+	->where("Facility_Code='$facility_code' and kemsa_code='$drug_id'")->andwhere("availability='1'");
+	$previous = $query -> execute();		
+	$drugs = $previous -> count();
 		return $drugs;	
 	}
 	

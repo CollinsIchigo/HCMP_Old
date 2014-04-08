@@ -297,7 +297,7 @@ and f.district=d.id and d.county=$county_id
 	}
 
 
-   public function get_county_coverage_data($county_id){
+   public static function get_county_coverage_data($county_id){
    	 $query_1 = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
 SELECT COUNT( f.id ) AS total
 FROM facilities f, districts d

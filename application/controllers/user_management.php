@@ -11,26 +11,33 @@ class User_Management extends auto_sms
 		$this->load->helper(array('form','url'));
 		$this->load->library('form_validation');
 	}
-	public function change_password()
-	{
-		$this -> load -> view("ajax_view/change_password");
-	}
-
-	public function index() 
-	{
+public function change_password(){
+	$this -> load -> view("ajax_view/change_password");
+}
+////////////////////////////
+	public function index() {
+		
+ $this->output->set_header("Cache-Control: no-store, no-cache, must-revalidate, no-transform, max-age=0, post-check=0, pre-check=0");
+ $this->output->set_header("Pragma: no-cache");
 		$data = array();
 		$data['title'] = "Login";
 		$this -> load -> view("login_v", $data);
 	}
 
-	public function login() 
-	{
+
+
+
+	public function login() {
+		 $this->output->set_header("Cache-Control: no-store, no-cache, must-revalidate, no-transform, max-age=0, post-check=0, pre-check=0");
+ $this->output->set_header("Pragma: no-cache");
 		$data = array();
 		$data['title'] = "Login";
 		$this -> load -> view("login_v", $data);
 	}
-	public function logout()
-	{
+	public function logout(){
+		
+ $this->output->set_header("Cache-Control: no-store, no-cache, must-revalidate, no-transform, max-age=0, post-check=0, pre-check=0");
+ $this->output->set_header("Pragma: no-cache");
 		//$this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file'));
 		$data = array();
 		Log::update_log_out_action($this -> session -> userdata('identity'));

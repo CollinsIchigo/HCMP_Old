@@ -64,7 +64,7 @@
     
   
      
-    var chart = new FusionCharts("<?php echo base_url()."scripts/FusionCharts/Bar2D.swf"?>","ChartId", "100%", "80%", "0", "1" );
+    var chart = new FusionCharts("<?php echo base_url()."scripts/FusionCharts/Bar2D.swf"?>","ChartId", "100%", "80%", "0", "0" );
     var url = '<?php echo base_url()."report_management/expired_commodities_chart"?>'; 
     chart.setDataURL(url);
     chart.render("chart1");
@@ -207,7 +207,9 @@
 	
 		</table>
 
-	<div id="chart9" ></div>
+	<div id="chart9" >
+		
+	</div>
 	</div>
   
  

@@ -1,14 +1,15 @@
-<?php if($county=="county"){ 
+<?php 
 
+if($county=="county"){ 
 $url_swf=base_url()."scripts/FusionCharts/Line.swf";
-$url_data=base_url()."report_management/generate_costofexpiries_chart/".$county;
+$url_data=base_url()."report_management/generate_costofexpiries_chart/".$county."/blank/".$year;
 
 echo <<<HTMLCHART
 	<script type="text/javascript">
 jQuery(document).ready(function() {
-		var chart = new FusionCharts("$url_swf", "ChartId1", "90%", "100%", "0", "0");
+		var chart = new FusionCharts("$url_swf", "ChartId1", "100%", "80%", "0", "0");
 		var url = '$url_data'; 
-		chart.setDataURL(url);
+		chart.setXMLUrl(url);
 		chart.render("chart_exp");
 
 			});
@@ -27,7 +28,7 @@ else{?>
 jQuery(document).ready(function() {
 		var chart = new FusionCharts("<?php echo base_url()."scripts/FusionCharts/Line.swf"?>", "ChartId1", "85%", "80%", "0", "0");
 		var url = '<?php echo base_url()."report_management/generate_costofexpiries_chart"?>'; 
-		chart.setDataURL(url);
+		chart.setXMLUrl(url);
 		chart.render("chart_exp");
 		
 			$( "#filter-b" )

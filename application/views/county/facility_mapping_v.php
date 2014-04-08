@@ -35,7 +35,7 @@
 					"bPaginate": false
 				} );
 		
-		var url = "<?php echo base_url().'report_management/get_county_facility_mapping_data/'?>";	
+		var url = "<?php echo base_url()."report_management/get_county_facility_mapping_data/$year/$month"?>";	
 		ajax_request_special(url,'main_div','');				
 	   
 

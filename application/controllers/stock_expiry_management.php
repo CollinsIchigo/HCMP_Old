@@ -248,19 +248,15 @@ public function expired($facility_code=NULL) {
 		$this -> session -> userdata('news')
 		:$facility_code;
 		
-		$district=$this -> session -> userdata('district');
-		$district=$this -> session -> userdata('district');
-		
-		
+		$district=$this -> session -> userdata('district1');
+
 		$data['dpp_array']=User::get_dpp_details($district)->toArray();
-		
-		//echo $date;
+
 		$data['title'] = "Expired Products";
 		$data['content_view'] = "facility/facility_reports/expire_v";
 		$data['banner_text'] = "Expired Products";
 		$data['expired']=Facility_Stock::getexp($facility,'decommission');
-		$data['link'] = "expire_v";
-		$data['quick_link'] = "expire_v";
+
 		$this -> load -> view("template", $data);
 	}
 
@@ -381,13 +377,16 @@ public function county_expiries() {
 	}
 	
 	public function county_deliveries() {
-		$date= date('Y-m-d');
+		//$date= date('Y-m-d');
 		$county=$this -> session -> userdata('county_id');
 		$data['title'] = "Deliveries";
 		$data['content_view'] = "county/county_stock_data/county_deliveries_v";
 		$data['banner_text'] = "Deliveries";
 		$data['delivered']=Counties::get_county_received($county);
+		$data['pending']=Counties::get_pending_county($county);
+		$data['approved']=Counties::get_approved_county($county);
 		$data['order_counts']=Counties::get_county_order_details($county);
+		$data['rejected']=Counties::get_rejected_county($county);
 		$data['link'] = "county/county_deliveries_v";
 		$data['quick_link'] = "county/county_deliveries_v";
 
@@ -532,40 +531,31 @@ public function generate_decommission_report_pdf($report_name,$title,$html_data)
 public function Decommission() {
 	//Change status of commodities to decommissioned
 
-	$date= date('Y-m-d');
-	$facility=$this -> session -> userdata('news');
-	$facility_code=$this -> session -> userdata('news');
-	$user_id=$this -> session -> userdata('user_id');
+	   $date= date('Y-m-d');
+	   $facility=$this -> session -> userdata('news');
+	   $facility_code=$this -> session -> userdata('news');
+	   $user_id=$this -> session -> userdata('user_id');
 	
-		$facility_name_array=Facilities::get_facility_name($facility_code)->toArray();
+		$facility_name_array=Facilities::get_facility_name_($facility_code);
 		$facility_name=$facility_name_array['facility_name'];
-		$districtName = $this->session->userdata('full_name');
-		
-		
-		    $myobj1 = Doctrine::getTable('Districts')->find($facility_name_array['district']);
-			$disto_name=$myobj1->district;
-			$county=$myobj1->county;
-			$myobj2 = Doctrine::getTable('Counties')->find($county);
-			$county_name=$myobj2->county;
-			$myobj3 = Doctrine::getTable('user')->find($user_id);
-			$creator_name1=$myobj3 ->fname;
-			$creator_name2=$myobj3 ->lname;
-			
-			
+		$districtName = $this->session->userdata('full_name' );
+
+		$myobj1 = Doctrine::getTable('Districts')->find($facility_name_array['district']);
+		$disto_name=$myobj1->district;
+		$county=$myobj1->county;
+		$myobj2 = Doctrine::getTable('Counties')->find($county);
+		$county_name=$myobj2->county;
+		$myobj3 = Doctrine::getTable('user')->find($user_id);
+		$creator_name1=$myobj3 ->fname;
+		$creator_name2=$myobj3 ->lname;
+
 			$total=0;
-		
-			
-			//Create PDF of Expired Drugs that are to be decommisioned.
+			//Create PDF of Expired Drugs that are to be decommisioned. check here 
 			$decom=Facility_Stock::get_facility_expired_stuff($date,$facility);
 			
-			$q = Doctrine_Query::create()
-			->update('Facility_Stock')
-				->set('status', '?', 2)
-					->where("facility_code='$facility' and expiry_date<='$date'");
-
-			$q->execute();
+			
 			//create the report title
-		$html_title="<div ALIGN=CENTER><img src='".base_url()."Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
+	$html_title="<div ALIGN=CENTER><img src='Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
     
        <div style='text-align:center; font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 14px;'>
        Ministry of Health</div>
@@ -617,55 +607,61 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 								$code=$drug['kemsa_code'];
 								
 								$code= isset($code) ? "KEMSA: code".$code  : '' ;
-								
-								
-								
+
 					            $unitS=$drug['unit_size'];
 								$unitC=$drug['unit_cost'];
-								$calc=$drug['balance'];
+								$calc=($drug['balance']);
+								$total_units=$drug['total_units'];
 								$thedate=$drug['expiry_date'];
-								$formatme = new DateTime($thedate);
-								$cost=$calc*$unitC;
+							    $balance=round(($calc/$total_units),1);
+								$cost=$balance*$unitC;
+								$formatme=new DateTime(	$thedate);
 								$myvalue= $formatme->format('d M Y');	
 								$total=$total+$cost;
-			$facility_stock=Facility_Stock::get_facility_drug_total($facility,$drug_id)->toArray();					
 								
+			//get the current balance of the commodity					
+			$facility_stock=Facility_Stock::get_facility_drug_total($facility,$drug_id)->toArray();					
+											
 			$mydata3 = array('facility_code'=>$facility,
-			's11_No' => 'Expired',
+			's11_No' => '(Loss) Expiry',
 			'kemsa_code'=>$drug_id,
 			'batch_no' => $batch,
 			'expiry_date' => $thedate,
-			'receipts' => $calc,
+			'receipts' => ($calc*-1),
 			'balanceAsof'=>$facility_stock[0]['balance'],
 			'date_issued' => date('y-m-d'),
 			'issued_to' => 'N/A',
 			'issued_by' => $this -> session -> userdata('identity')
 			);
-			 
-			   $now= new DateTime();
-			   $dDiff = $formatme->diff($now);
-  // echo $dDiff->format('%R'); // use for point out relation: smaller/greater
-             $date_diff= $dDiff->days;
+			
+			 $seconds_diff =strtotime(date("y-m-d"))-strtotime($myvalue);
+			 $date_diff=floor($seconds_diff/3600/24);
 			
 			Facility_Issues::update_issues_table($mydata3);
 			
-			$inserttransaction_1 = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("select   `losses` from `facility_transaction_table`
+			$inserttransaction_1 = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("select `losses` from `facility_transaction_table`
                                           WHERE `kemsa_code`= '$drug_id' and availability='1' and facility_code=$facility; ");
-		
-			
+
 			$new_value=$inserttransaction_1[0]['losses']+$calc;
 			
 		   	$inserttransaction= Doctrine_Manager::getInstance()->getCurrentConnection();
 			$inserttransaction1 = Doctrine_Manager::getInstance()->getCurrentConnection();
+			$inserttransaction2 = Doctrine_Manager::getInstance()->getCurrentConnection();
 			
+			     // update the transaction table with the loss
 			$inserttransaction->execute("UPDATE `facility_transaction_table` SET losses =$new_value
                                           WHERE `kemsa_code`= '$drug_id' and availability='1' and facility_code=$facility; ");	
+										  
+              // update the transaction table with the new closing balance
                                           
             $inserttransaction1->execute("UPDATE `facility_transaction_table` SET closing_stock = (SELECT SUM(balance)
 			 FROM facility_stock WHERE kemsa_code = '$drug_id' and status='1' and facility_code='$facility')
-                                          WHERE `kemsa_code`= '$drug_id' and availability='1' and facility_code ='$facility'; ");                               								    
-							    
-							
+                                          WHERE `kemsa_code`= '$drug_id' and availability='1' and facility_code ='$facility'; ");  
+                                           
+             /// update the facility issues and set the commodity to expired                             
+            $inserttransaction->execute("UPDATE `facility_stock` SET status =2
+                                          WHERE `kemsa_code`= '$drug_id' and facility_code=$facility; ");	                            								    
+				
 		    $html_body .='<tr><td>'.$code.'</td>
 							<td>'.$name.'</td>
 							<td >'.$unitS.'</td>
@@ -688,10 +684,7 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 		</tr>
 		</tbody>
 		</table>'; 
-	//number_format($total, 2, '.', ',')
-	//echo $html_title.$html_body;
-	
-		//now ganerate an expiry pdf from the generated report
+
 			$this->load->library('mpdf');
 			$this->load->helper('file');
             $this->mpdf = new mPDF('', 'A4-L', 0, '', 15, 15, 16, 16, 9, 9, '');
@@ -699,8 +692,6 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
             $this->mpdf->defaultheaderline = 1;  
             $this->mpdf->simpleTables = true;
             $this->mpdf->WriteHTML($html_body);
-           // $this->mpdf->AddPage();
-			//$this->mpdf->WriteHTML($html_body);
 			$this->mpdf->SetFooter("{DATE d/m/Y }|{PAGENO}/{nb}|Prepared by: $creator_name1 $creator_name2");
 			$report_name='Facility_Expired_Commodities_'.$facility."_".$date."_".$facility_name;
 			
@@ -712,16 +703,20 @@ table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px 
 	     redirect("/");	
              }
                   else{
-       
-   if($this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
+     
+	
+   if(!$this->send_stock_decommission_email($html_body,'Decommission Report For '.$facility,'./pdf/'.$report_name.'.pdf')){
+
    	delete_files('./pdf/'.$report_name.'.pdf');
    	$this->session->set_flashdata('system_success_message', 'Stocks Have Been Decommissioned');
 	redirect("/");
+	
    }
    else{
-   	
+   		
     $this->session->set_flashdata('system_error_message', 'An error occured, the items were decommissioned but there was a problem in sending an email file:'.$report_name.'.pdf');
 	redirect("/");	
+	
    }
 			
   }

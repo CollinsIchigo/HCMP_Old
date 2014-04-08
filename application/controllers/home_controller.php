@@ -9,31 +9,28 @@ class Home_Controller extends MY_Controller
 		parent::__construct();
 	}
 
-	public function index() 
-	{
+	public function index($year=null) {
 
-		$this -> home();
+		$this -> home("",$year);
 	}
 
 
-	public function get_dash_board_stats($dash_board_indicator)
+public function get_dash_board_stats($dash_board_indicator)
+{
+
+	$county_id = $this -> session -> userdata('county_id');
+	$district_id = $this -> session -> userdata('district1');
+	$district_id = $this -> session -> userdata('district');
+	$base_url=base_url();
+	$indicator='';
+	switch ($dash_board_indicator) 
 	{
-		$county_id = $this -> session -> userdata('county_id');
-		$district_id = $this -> session -> userdata('district1');
-		$district_id = $this -> session -> userdata('district');
-		$base_url = base_url();
-		$indicator = '';
-		switch ($dash_board_indicator) 
-		{
-			case 'county':
-			$indicator ="County";
-			$facility_data=facilities::get_no_of_facilities_hcmp($county_id);
-			$user_data=user::get_no_of_users_using_hcmp($county_id);
-			$pending_orders = Ordertbl::get_pending_o_count($county_id);
-	
-	
-	
-	$decommissioned_items=facility_stock::get_decommisioned_count($county_id);
+		case 'county':
+		$indicator ="County";
+		$facility_data=facilities::get_no_of_facilities_hcmp($county_id);
+		$user_data=user::get_no_of_users_using_hcmp($county_id);
+		$pending_orders = Ordertbl::get_pending_o_count($county_id);
+		$decommissioned_items=facility_stock::get_decommisioned_count($county_id);
 	
 	$decommissioned_items[0]['total']=(count($decommissioned_items)==0)?0:$decommissioned_items[0]['total'];
 	
@@ -112,8 +109,9 @@ return $stats_data;
 	
 }
 
-	public function home($pop_up=NULL) 
+	public function home($pop_up=NULL,$year=null) 
 	{
+
 		$data['title'] = "Home";
 		$access_level = $this -> session -> userdata('user_indicator');
 		$facility_c = $this -> session -> userdata('news');
@@ -140,62 +138,30 @@ return $stats_data;
 			$data['stock'] = Facility_Stock::count_facility_stock_first($facility_c);
 		    $data['pending_orders'] = Ordertbl::get_pending_count($facility_c);
 			$data['rejected_orders'] = Ordertbl::get_rejected_count($facility_c);
-			$count = Ordertbl::getPending_d($facility_c)->count();
-			$data['pending_orders_d'] = $count;
+			$count=Ordertbl::getPending_d($facility_c)->count();
+			$data['pending_orders_d'] =$count;
 			$data['dispatched'] = NULL;//Ordertbl::get_dispatched_count($facility_c);
 			$data['incomplete_order'] = Facility_Transaction_Table::get_undated_records($facility_c);
 /*************************************************************************************************/			
 			$data['content_view'] = "facility/facility_home_v";
 			$data['scripts'] = array("FusionCharts/FusionCharts.js"); 
-		
-		}else if($access_level == "super_admin")
-		{
-			$data['content_view'] = "super_admin/home_v";
-		}else if($access_level == "county_facilitator")
-		{
-			//$active_logs=Log::get_active_login($option,$option_id);
-			$county_id=$this -> session -> userdata('county_id');
-			$data['stats']=$this->get_dash_board_stats("county");
-			$data['content_view'] = "county/county_v_2";
-			$data['banner_text'] = "Home";
-			$data['link'] = "home";
-			$data['coverage_data']=$this->get_county_dash_board_district_coverage();
-		    $data['max_date']=facility_stock::get_county_max_date($county_id);
-			$drug_category=Drug_Category::getAll();
-		    $category_name='';	
 
-			foreach ($drug_category as $category0) 
-			{
-				$id=$category0->id;
-				$category3=$category0->Category_Name;
-				$category_name .="<option value='$id'>$category3;</option>";
-			}
-			
-			$data['drug_category']=$category_name;
-		
-
-		}/* go to application/controllers/home_controller.php and check for this if statement */
-		else if($access_level == "dpp")
-		{
-			$district = $this->session->userdata('district1');
-		    $data['facilities'] = Facilities::get_total_facilities_rtk_in_district($district);
-			$facilities = Facilities::get_total_facilities_rtk_in_district($district);
-			// $facilities=Facilities::get_facility_details(6);
-			$table_body='';
-			foreach($facilities as $facility_detail)
-			{
-				$lastmonth = date('F', strtotime("last day of previous month"));
-				$table_body .="<tr><td><a class='ajax_call_1' id='county_facility' name='" . base_url() . "rtk_management/get_rtk_facility_detail/$facility_detail[facility_code]' href='#'>" . $facility_detail["facility_code"] . "</td>";
-	            $table_body .="<td>" . $facility_detail['facility_name'] . "</td><td>" . $facility_detail['facility_owner'] . "</td>";
-	            $table_body .="<td>";
-				$lab_count = lab_commodity_orders::get_recent_lab_orders($facility_detail['facility_code']);
-            	$fcdrr_count = rtk_fcdrr_order_details::get_facility_order_count($facility_detail['facility_code']);
-	            if ($fcdrr_count > 0) {
-	                $table_body .="<!-- FCDRR <img src='" . base_url() . "/Images/check_mark_resize.png'></img>
-	                        <a href=" . site_url('rtk_management/update_fcdrr_test/' . $facility_detail['facility_code']) . " class='link'>Edit</a>|-->";
-	            } else {
-	                $table_body .="<!--<a href=" . site_url('rtk_management/fcdrr_test/' . $facility_detail['facility_code']) . " class='link'>FCDRR</a>|-->";
-	            }
+		}
+else if($access_level == "super_admin"){
+	$data['content_view'] = "super_admin/home_v";
+}
+else if($access_level == "county_facilitator"){
+	  $year=isset($year)?$year : date("Y");
+	//$active_logs=Log::get_active_login($option,$option_id);
+	$county_id=$this -> session -> userdata('county_id');
+	$data['stats']=$this->get_dash_board_stats("county");
+	$data['year']=$year;
+	$data['content_view'] = "county/county_v_3";
+	$data['banner_text'] = "Home";
+	$data['link'] = "home";
+	$data['coverage_data']=$this->get_county_dash_board_district_coverage();
+    $data['max_date']=facility_stock::get_county_max_date($county_id);
+	
 	
 	            if ($lab_count > 0) {
 	                //".site_url('rtk_management/get_report/'.$facility_detail['facility_code'])."
@@ -205,7 +171,7 @@ return $stats_data;
 	            }
 	
 	            $table_body .="</td>";
-	        }
+	       
 
 		$data['table_body']=$table_body;
 		$data['content_view'] = "rtk/dpp/dpp_home_with_table";
@@ -213,13 +179,15 @@ return $stats_data;
 		$data['link'] = "home";
 		
 
-		}
-
-	else if($access_level == "rtk_manager"){
+	 }
+	
+	else if($access_level == "rtk_manager")
+	{
 		$data['content_view'] = "rtk/home_v";
 	}
 	
-	else if($access_level == "allocation_committee"){
+	else if($access_level == "allocation_committee")
+	{
 	$counties=Counties::getAll();
 		$table_data="";
 		$allocation_rate=0;
@@ -554,10 +522,18 @@ return $stats_data;
 			$data['banner_text'] = "Home";
 			$data['link'] = "home";
 			$this -> load -> view("template", $data);
-	
+
+			$data['pending_orders'] = Ordertbl::get_pending_o_count(null,$district);
+			$data['decommisioned'] = Facility_stock::get_decom_count($district);
+			$data['drugs_array'] = Drug::getAll();
+			$data['facilities']=Facilities::getFacilities($district);
+		    $data['active_facilities']=Facility_Issues::get_active_facilities_in_district($district);
+			$data['inactive_facilities']=Facility_Issues::get_inactive_facilities_in_district($district);
+			$data['content_view'] = "district/district_home_v";
 		}
 		
-		function district_lead_time(){
+		function district_lead_time()
+		{
 	   $strXML  = "";
 	   $strXML .= "<chart bgColor='#FFFFFF' showBorder='0' lowerLimit='0' upperLimit='100' numberSuffix='%25' toolTipBgColor='AFD8F8'>";
 	   $strXML .= "<colorRange><color minValue='0' maxValue='45' code='FF654F'/><color minValue='45' maxValue='80' code='F6BD0F'/><color minValue='80' maxValue='100' code='8BBA00'/></colorRange>";
@@ -594,7 +570,8 @@ return $stats_data;
 		$this -> load -> view("template", $data);
 		
      }
-     public function get_county_dash_board_district_coverage(){
+     public function get_county_dash_board_district_coverage()
+     {
      	$county_id=$this -> session -> userdata('county_id');
 		$district_data=districts::getDistrict($county_id);
 		

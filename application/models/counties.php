@@ -55,17 +55,40 @@ return $q;
 			AND d.id='$district' GROUP BY d.district");
 		return $query;
 	}
-	public static function get_county_order_details($county){
+	public static function get_county_order_details($county_id,$district_id=NUll,$facility_code=null){
+
+		
+		
+		if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id =$district_id" ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county =$county_id" ;
+				
+			else:
+				$and_data =" AND f.facility_code =$facility_code" ;
+				endif;
+	
 		$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("SELECT 
-		(SELECT COUNT(o.facilityCode) FROM ordertbl o WHERE o.orderStatus='Pending') as pending_orders,
-		 (SELECT COUNT(o.facilityCode) FROM ordertbl o WHERE o.orderStatus='delivered') as delivered_orders, 
-		 (SELECT COUNT(o.facilityCode) FROM ordertbl o WHERE o.orderStatus='approved') as approved_orders
-		FROM ordertbl o, facilities f, districts d, counties c
-			WHERE o.orderStatus='delivered'
-			AND o.facilityCode=f.facility_code
+		(SELECT COUNT(o.id) FROM ordertbl o, facilities f, districts d 
+		WHERE o.orderStatus like '%pending%' 
+		AND o.facilityCode=f.facility_code
+		AND f.district=d.id
+		$and_data) as pending_orders,
+		(SELECT COUNT(o.id) FROM ordertbl o, facilities f, districts d 
+		 WHERE o.orderStatus like '%delivered%'
+		 AND o.facilityCode=f.facility_code
+		 AND f.district=d.id
+		$and_data) as delivered_orders, 
+		 (SELECT COUNT(o.id) FROM ordertbl o, facilities f, districts d 
+		 WHERE o.orderStatus like '%approved%'  AND o.facilityCode=f.facility_code
 			AND f.district=d.id
-			AND d.county=c.id
-			AND c.id='$county'");
+			$and_data) as approved_orders,
+			(SELECT COUNT(o.id) FROM ordertbl o, facilities f, districts d 
+		 WHERE o.orderStatus like '%rejected%'  
+		 AND o.facilityCode=f.facility_code
+		 AND f.district=d.id
+		 $and_data) as rejected_orders");
 		return $query;
 	}
 
@@ -102,6 +125,7 @@ SUM( f_s.balance ) / d.total_units ) * d.unit_cost, 1
 where d.id=f_s.kemsa_code
 AND f_s.expiry_date between DATE_ADD(CURDATE(), INTERVAL 1 day) and  DATE_ADD(CURDATE(), INTERVAL 6 MONTH)
 AND f_s.status =(1 or 2)
+and year(f_s.expiry_date)=year(NOW())
 GROUP BY f_s.kemsa_code,f_s.facility_code having total >1
      ) temp
      on temp.facility_code = f.facility_code
@@ -122,7 +146,7 @@ SUM( f_s.balance ) / d.total_units ) * d.unit_cost, 1
 ) AS total, f_s.facility_code from facility_stock f_s, drug d
 where f_s.expiry_date < NOW( ) 
 and d.id=f_s.kemsa_code
-AND f_s.expiry_date < NOW( ) 
+and year(f_s.expiry_date)=year(NOW())
 AND f_s.status =(1 or 2)
 GROUP BY f_s.kemsa_code,f_s.facility_code having total >1
 
@@ -134,9 +158,22 @@ and temp.total>0
 group by f.facility_code");	
 		return $query;
 	}
-	public static function get_county_received($county){
+	public static function get_county_received($county_id,$district_id=NUll,$facility_code=null){
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
+				
+			
+		
 		$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
-select  temp.id, d.district, f.facility_name, f.facility_code,temp.orderDate,year(temp.orderDate) as mwaka,
+select  temp.id, d.district, f.facility_name, f.facility_code,temp.orderDate,date_format( temp.orderDate, '%b %Y' ) as mwaka,
 temp.orderTotal, temp.total_delivered, temp.fill_rate from  districts d,facilities f
 left join
      (
@@ -144,18 +181,87 @@ SELECT o.id, orderDate, o.facilityCode, o.orderTotal, o.total_delivered, IFNULL(
 SUM( o_d.quantityRecieved ) / ROUND( SUM( o_d.quantityOrdered ) * d.total_units ) ) *100 ) , 0
 ) AS fill_rate
 FROM ordertbl o, orderdetails o_d, drug d
-WHERE o.orderStatus =  'delivered'
+WHERE o.orderStatus like '%delivered%'
 AND o_d.orderNumber = o.id
 AND o_d.kemsa_code = d.id
 GROUP BY d.id, o.id
-     ) temp
-     on temp.facilityCode = f.facility_code
-     where  f.district = d.id
-AND d.county =$county
+) temp
+on temp.facilityCode = f.facility_code
+where  f.district = d.id
+$and_data
 group by f.facility_code having temp.id>0");		
+		 
 		   return $query;
+   
+	}
+	public static function get_pending_county($county_id,$district_id=NUll,$facility_code=null){
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
+		
 
+				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
+SELECT o.id, d.district, f.facility_name, f.facility_code, o.orderDate, date_format( o.orderDate, '%b %Y' ) AS mwaka, o.orderTotal
+FROM districts d, facilities f, ordertbl o
+WHERE f.district = d.id
+AND o.orderStatus LIKE '%pending%'
+AND o.facilityCode = f.facility_code
+$and_data");		
+		 
+		   return $query;
+	}
+		public static function get_rejected_county($county_id,$district_id=NUll,$facility_code=null){
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
+		
+	
+				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
+SELECT o.id, d.district, f.facility_name, f.facility_code, o.orderDate, date_format( o.orderDate, '%b %Y' ) AS mwaka, o.orderTotal
+FROM districts d, facilities f, ordertbl o
+WHERE f.district = d.id
+AND o.orderStatus LIKE '%rejected%'
+AND o.facilityCode = f.facility_code
+$and_data");		
+		 
+		   return $query;
+	}
+	
+		public static function get_approved_county($county_id,$district_id=NUll,$facility_code=null){
+if(isset($district_id) && $district_id>0):
+			$and_data =" AND d.id ='$district_id' " ;
+			
+			elseif(isset($county_id) && $county_id>0):
+				$and_data =" AND d.county ='$county_id' " ;
+				
+			else:
+				$and_data =" AND f.facility_code ='$facility_code' " ;
+				endif;
+	
+		//'%approved%'
 
-		   
+				$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
+SELECT o.id, d.district, f.facility_name, f.facility_code, o.orderDate, date_format( o.orderDate, '%b %Y' ) AS mwaka, o.orderTotal
+FROM districts d, facilities f, ordertbl o
+WHERE f.district = d.id
+AND o.orderStatus LIKE '%approved%'
+AND o.facilityCode = f.facility_code
+$and_data");		
+		 
+		   return $query;
 	}
 }

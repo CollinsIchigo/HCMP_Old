@@ -19,29 +19,28 @@ include_once('auto_sms.php');
 	}
 	
 	public function district_orders($msg=NULL){
-		$data['title'] = "District Orders";
+		//$district_id=$this -> session -> userdata('district');
+		$district_id=$this -> session -> userdata('district1');
+		
+		$data['title'] = "Subcounty Orders";
 		$data['content_view'] = "district/district_orders_v";
-		$data['banner_text'] = "District Orders";
-		$id=$this -> session -> userdata('district');
-		$data['order_list']=Ordertbl::get_district_orders($id);
-		
-		$myobj = Doctrine::getTable('districts')->find($id);
-		
-		
-		//$data['district_incharge']=array($id=>$myobj->district);
-		$data['myClass'] = $this;
-		$data['msg']=$msg;
-		$data['link'] = "order_appoval";
-		$data['quick_link'] = "new_order";
+		$data['banner_text'] = "Subcounty Orders";
+		$data['order_counts']=Counties::get_county_order_details(null,$district_id,null);
+		$data['delivered']=Counties::get_county_received(null,$district_id,null);
+		$data['pending']=Counties::get_pending_county(null,$district_id,null);
+		$data['approved']=Counties::get_approved_county(null,$district_id,null);
+		$data['rejected']=Counties::get_rejected_county(null,$district_id,null);
+
 		$this -> load -> view("template", $data);
 		
 	}
-	public function district_order_details($delivery,$facility_code=null,$for_facility=null,$rejected_order=null){
+	public function district_order_details($delivery,$facility_code=null,$for_facility=null,$rejected_order=null,$view=null){
 	
 		$data['title'] = "Order detail View";
      	$data['content_view'] = isset($for_facility)? "facility/facility_data/facility_orders/facility_update_order_v" :"district/moh_orderdetail_v";
 		$data['banner_text'] = "Order detail View";
 		$data['link'] = "home";
+		$data['view']=$view;
 		$data['rejected_order']=$rejected_order;
 		$data['drug_name']=Drug::get_drug_name();
 		$data['quick_link'] = "moh_order_v";
@@ -197,14 +196,14 @@ else if( $in[$i]['category_name']!=$in[$i-1]['category_name']){
 		 $losses=$in[$i]['losses'];
 		 $total=$o_t*$in[$i]['total_units'];
 		 
-		/* if($o_bal==0 && $t_re==0 && $t_issues>0){
+		 if($o_bal==0 && $t_re==0 && $t_issues>0){
 		 	$adj=$t_issues;
 		 }
 		 $c_stock=$o_bal+$t_re+$adj-$losses-$t_issues;
 		 
 		 if($c_stock<0){
 		 	$adj=$c_stock*-1;
-		 }*/
+		 }
 		  $c_stock=$o_bal+$t_re+$adj-$losses-$t_issues;
 		 $html_body .="<tr>";
 		 $html_body .="<td>".$in[$i]['kemsa_code']."</td>"; 	

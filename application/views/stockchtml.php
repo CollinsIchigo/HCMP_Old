@@ -77,11 +77,11 @@ table.data-table1 td {
 	<img src="<?php echo base_url().'Images/coat_of_arms.png'?>" style="position:absolute;  width:90px; width:90px; top:0px; left:0px; margin-bottom:-100px;margin-right:-100px;"></img>
        
        <span style="margin-left:100px;  font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 15px;">
-     Ministry of Public Health and Sanitation/Ministry of Medical Services</span><br>
+     Ministry of Health</span><br>
        <span style=" font-size: 12px;  margin-left:100px;">Health Commodities Management Platform</span><span style="text-align:center;" >
        	<h2 style="text-align:center; font-size: 20px;">Stock Control Card</h2>
        <h2 style="text-align:center;"><?php echo $drugname ?>(<?php echo $desc?>)</h2>
-       <h2 style="text-align:center;">Between <?php echo $from ?> & <?php echo $to ?> </h2>
+       <h2 style="text-align:center;">Between <?php echo date('d M y',strtotime($from)) ?> & <?php echo date( 'd M y', strtotime($to))?> </h2>
        </br>
        	<hr/> 
         
@@ -96,9 +96,9 @@ table.data-table1 td {
 		<th>Batch No</th>
 		<th>Expiry Date</th>
 		<th>Receipts/Opening Bal.</th>
+		<th>ADJ</th>
 		<th>Issues</th>
 		<th>Closing Bal.</th>
-		
 		<th>Issuing/Receiving Officer</th>
 		<th>Service Point</th>
 	</tr><tbody>
@@ -112,8 +112,18 @@ table.data-table1 td {
 								$lname=$d->lname;
 								$thedate=$user->date_issued;
 								$qty_receipts=$user->receipts;
+								$adj=0;
+								$closing_bal=$user->balanceAsof-$user->qty_issued;
+
+								if($user->s11_No=='(+ve Adj) Stock Addition'){
+								$adj=$user ->receipts;
+								$closing_bal=$user->balanceAsof+$adj;
+								}
 								
-								($qty_receipts==0) ? $qty_receipts=$user->balanceAsof+$user->qty_issued :$qty_receipts=$user->receipts;
+								if($user->s11_No=='(-ve Adj) Stock Deduction' || $user->s11_No=='(Loss) Expiry'){
+								$adj=$user->receipts;
+								$closing_bal=$user->balanceAsof+$adj;
+								}
 								
 								$thedate1=$user->expiry_date;
 								$formatme = new DateTime($thedate);
@@ -136,10 +146,10 @@ table.data-table1 td {
 							<td><font color = 'red'><?php echo $user->s11_No;?></font></td>
 							<td><font color = 'red'><?php echo $user->batch_no;?></font></td>
 							<td><font color = 'red'><?php echo $myvalue1;?></font></td>
-							<td><font color = 'red'><?php echo $qty_receipts;?></font></td>
+							<td><font color = 'red'><?php echo $user->balanceAsof;?></font></td>
+							<td><font color = 'red'><?php echo $adj;?></font></td>
 							<td><font color = 'red'><?php echo $user->qty_issued;?></font></td>
-							<td><font color = 'red'><?php echo $user->balanceAsof;?></font></td>	
-							
+							<td><font color = 'red'><?php echo $closing_bal;?></font></td>								
 							<td><font color = 'red'><?php echo $lname.' '.$fname;?></font></td>
 							<td><font color = 'red'> <?php echo $user->issued_to;?></font></td>
 							<?php }
@@ -149,10 +159,10 @@ table.data-table1 td {
 							<td><?php echo $user->s11_No;?></td>
 							<td><?php echo $user->batch_no;?> </td>
 							<td><?php echo $myvalue1;?> </td>
-							<td><?php echo $qty_receipts;?> </td>
+							<td><?php echo $user->balanceAsof;?> </td>
+							<td><?php echo $adj;?></td>
 							<td><?php echo $user->qty_issued;?></td>
-							<td><?php echo $user->balanceAsof;?></td>		
-							
+							<td><?php echo $closing_bal;?></td>									
 							<td><?php echo $lname.' '.$fname;?></td>
 							<td> <?php echo $user->issued_to;?> </td>
 							<?php } ?>

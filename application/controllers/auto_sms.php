@@ -3,13 +3,15 @@ ob_start();
 class auto_sms extends MY_Controller {
 	
 	var $test_mode=true;
+
 	
 	
 public function update_stock_out_table(){
+	exit;
 	$in = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
 	select stock_date,facility_code,
 	kemsa_code from facility_stock 
-	where `balance`=0 and `status`=1 
+	where `balance`=0 and `status`=1 and quantity>0
 	group by kemsa_code,facility_code");
 	
 	$jay=count($in);
@@ -25,8 +27,6 @@ set facility_id='".$in[$i]['facility_code']."', drug_id='".$in[$i]['kemsa_code']
 }
 	
 public function send_stock_update_sms(){
-	
-
        $facility_name = $this -> session -> userdata('full_name');
 	   $facility_code=$this -> session -> userdata('news');
 	   $data=User::getUsers($facility_code)->toArray();
@@ -158,11 +158,12 @@ public function send_sms($phones,$message) {
  	
  	$phone_numbers=explode("+", $spam_sms);
 	
-	foreach($phone_numbers as $key=>$user_no):
 
-	file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$user_no&text=$message");
+	//foreach($phone_numbers as $key=>$user_no):
+  //  break;
+	//file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$user_no&text=$message");
 		
-	endforeach;
+	//endforeach;
  		
 	}
 public function send_order_submission_email($message,$subject,$attach_file){
@@ -226,10 +227,8 @@ $cc_email=($this->test_mode)?'kariukijackson@gmail.com': 'anganga.pmo@gmail.com,
 }
 
 public function send_email($email_address,$message,$subject,$attach_file=NULL,$bcc_email=NULL,$cc_email=NULL){
-        	return true;
-			
-			
-			$mail_list=($this->test_mode)?'kariukijackson@gmail.com,kariukijackson@ymail.com': 'rkihoto@clintonhealthaccess.org,
+ 
+		$mail_list=($this->test_mode)?'kariukijackson@gmail.com,kariukijackson@ymail.com': 'rkihoto@clintonhealthaccess.org,
   		eunicew2000@yahoo.com,
   		gmacharia@clintonhealthaccess.org,
   		Jhungu@clintonhealthaccess.org,
@@ -239,8 +238,7 @@ public function send_email($email_address,$message,$subject,$attach_file=NULL,$b
   		ashminneh.mugo@gmail.com,
   		smutheu@clintonhealthaccess.org,
   		kariukijackson@gmail.com,
-  		kelvinmwas@gmail.com,
-		collinsojenge@gmail.com';
+ 		kelvinmwas@gmail.com,';
 			
 		$fromm='hcmpkenya@gmail.com';
 		$messages=$message;
@@ -284,6 +282,8 @@ return TRUE;
  else
 {
  return FALSE;
+
+ 
 }
 
 
