@@ -65,8 +65,6 @@ display: inline;
 padding: 5px;
 		
 	}
-
-	
 </style>
 	<div class="whole_report">
 <div>
@@ -77,74 +75,38 @@ padding: 5px;
        	<h2 style="text-align:center; font-size: 20px;"><?php echo $facility_data['facility_name'].' MFL '.$facility_data['facility_code']?> Expired Commodities as of <?php 
 					
 					$today= ( date('d M, Y')); 
-					echo $today;					
-				?></h2>
-       
-       
-      
-       	<hr/> 
-        
-        	
-</div>
+					echo $today;?>					
+		<hr/> 
+       </div>
 <table class="data-table">
-	
 	<tr>
-		<th>KEMSA Code</th>
-		<th>Description</th>
-		<th>Batch No Affected</th>
-		<th>Manufacturer</th>
-		<th>Expiry Date</th>
-		<th>Unit size</th>
-		<th>Stock Expired (Packs)</th>
-		<th>Unit Cost</th>
-		<th>Total Cost(KSH)</th>
+		<th>Submitted By:</th>
+		<th>Date of Submission</th>
+		<th>Action</th>
+		
 	</tr>
-	
-			
-		<tbody>
-		
-		<?php    $total=0;
-				foreach ($expired as $drug ) { 
-		?>
+	<tbody>
 		<?php 
-			foreach($drug->Code as $d)
+		$counter = 6;
+		//$malaria_values = Malaria_Data::getall($user);
+			foreach($user_data as $d)
 			{
-				$total_units=$d->total_units ;
-				$name=$d->Drug_Name;
-				$code=$d->Kemsa_Code;
-				$unitS=$d->Unit_Size; 
-				$unitC=$d->Unit_Cost;
-				$calc=$drug->balance;
-				$balance=round($calc/$total_units);
-				$total_expired=$drug->total;
-				$total=round($total+$total_expired,1);
-				$thedate=$drug->expiry_date;
-				$formatme = new DateTime($thedate);
-				$myvalue= $formatme->format('d M Y');
+				$user = $d['user_id'];
+				$name = User::get_user_names($user);
+				
+						?>
+						<tr>
+				
+							<td><?php echo $name[0]['fname']." ".$name[0]['lname'];?> </td>
+							<td><?php echo $d['report_time'];?></td>
+							<td><a href="<?php echo base_url().'report_management/edit_report/'.$d['report_time'];?>">Edit</a></td>
 							
-		?>
-				
-			<tr>
-				
-				<td><?php echo $code;?> </td>
-				<td><?php echo $name;?></td>
-				<td><?php echo $drug->batch_no;?> </td>
-				<td><?php echo $drug->manufacture;?> </td>
-				<td><?php echo $myvalue;?></td>
-				<td><?php echo $unitS;?></td>
-				<td><?php echo $balance;?></td>
-				<td><?php echo $unitC;?></td>
-				<td><?php echo number_format($total_expired, 2, '.', ',');?></td>
-				
-				
-			</tr>
-					<?php }
+						</tr>
+					<?php 	
+			
+					}
+			
 							?>	
-		<?php }
-
-					?>	
-			<tr><td colspan="7" ></td><td><b>TOTAL (KSH) </b></td><td><b><?php echo number_format($total, 2, '.', ','); ?></b></td></tr>
-		
-	 </tbody>
+	</tbody>
 </table>
 </div>

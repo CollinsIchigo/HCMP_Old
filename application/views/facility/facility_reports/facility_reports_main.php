@@ -1,4 +1,4 @@
-<?php $facility=$this -> session -> userdata('news');?>
+<?php //$facility=$this -> session -> userdata('news');?>
 <script type="text/javascript">
 $(function() {
 	$( "#dialog" ).dialog({
@@ -14,7 +14,7 @@ $(function() {
 		<fieldset>
 			<legend>Action</legend>
 		    <div class="activity issue">
-				<a href="<?php echo site_url('Issues_main/Index/Internal/'.$facility);?>"><h2>Issue Commodities to Service Points</h2></a>
+				<a href="<?php echo site_url('report_management/write_report');?>"><h2>Facility Malaria Reports</h2></a>
 			</div>
 		</fieldset>
 		
@@ -24,12 +24,12 @@ $(function() {
 		<fieldset>
 			<legend>Action</legend>			
 			<div class="activity ext">
-		<a href="<?php echo site_url('Issues_main/Index/External/'.$facility);?>"><h2>Donate Commodities</h2></a>
+		<a href="#"><h2>TB Reports</h2></a>
 		</div>	
 		
 	    
 		<div class="activity ext">
-		<a href="<?php echo site_url('Issues_main/Index/Donation/'.$facility)?>"><h2>Receive Donation From Other Sources</h2></a>
+		<a href="#"><h2>RH Reports</h2></a>
 		</div>
       </fieldset>
 	</div>

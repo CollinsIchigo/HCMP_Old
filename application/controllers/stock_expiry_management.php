@@ -418,12 +418,11 @@ public function district_deliveries($district=NULL) {
 	
 		$this -> load -> view("county/district_deliveries_v", $data);
 	}
-public function facility_report_expired($facility_code=null,$district_id=null) {
+	public function facility_report_expired($facility_code = null, $district_id = null) 
+	{
 		$date= date('Y-m-d');
-		
 		$facility=isset($facility_code)? $facility_code :$this -> session -> userdata('news');
 		$district=isset($district_id)? $facility_code :$this -> session -> userdata('district');
-		
 		$facility_detail=Facilities::get_facility_name_($facility);
         $data['facility_data']=$facility_detail;
 		$data['dpp_array']=User::get_dpp_details($district);

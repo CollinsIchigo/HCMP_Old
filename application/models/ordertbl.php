@@ -50,14 +50,16 @@ class Ordertbl extends Doctrine_Record {
 	//getting the order details 
 	public static function get_order($code,$id=NULL){
 
-if(isset($id)){
-         $myobj = Doctrine::getTable('Ordertbl')->find($code);
-         $myobj->approvalDate = date('y-m-d');
+	if(isset($id))
+	{
+		
+	     $myobj = Doctrine::getTable('Ordertbl')->find($code);
+	     $myobj->approvalDate = date('y-m-d');
 		 $myobj->orderStatus='approved';
 		 $myobj->approveby=$id;
-         $myobj->save();
-	
-}
+	     $myobj->save();
+		
+	}
 		
 	    $query=Doctrine_Query::create()-> select("*")->
 		from("ordertbl")->where("id='$code'");
@@ -121,6 +123,12 @@ select("orderDate, ordertbl.id, facilityCode, deliverDate, remarks, orderStatus,
 		$order=$query->execute();
 		return $order;
 	}
+	//get facility rejected orders
+	public static function get_rejected($facility_code){
+		$query=Doctrine_Query::create()->select("*")->from("ordertbl")->where("orderStatus='rejected' and facilityCode='$facility_code' ")->OrderBy("id desc");
+		$order=$query->execute();
+		return $order;
+	}
 	//get all the facilities orders
 	public static function get_facilitiy_orders($facility_code){
 	$query=Doctrine_Query::create()->select("*")->from("ordertbl")->where("facilityCode='$facility_code'")->OrderBy('id desc');
@@ -152,7 +160,11 @@ select("orderDate, ordertbl.id, facilityCode, deliverDate, remarks, orderStatus,
 		return $order;
 	}
 	public static function get_pending_count($facility_c){
-		$order =Doctrine_Query::create()-> select("*")->from("ordertbl")->where("facilityCode='$facility_c' AND orderStatus='Pending' ");
+		$order =Doctrine_Query::create()-> select("*")->from("ordertbl")->where("facilityCode='$facility_c' AND orderStatus='pending' ");
+		return $order->count();
+	}
+	public static function get_rejected_count($facility_c){
+		$order =Doctrine_Query::create()-> select("*")->from("ordertbl")->where("facilityCode='$facility_c' AND orderStatus='rejected' ");
 		return $order->count();
 	}
 
@@ -164,7 +176,7 @@ select("orderDate, ordertbl.id, facilityCode, deliverDate, remarks, orderStatus,
 	public static function getPendingDEtails($facility_c){
 		$query=Doctrine_Query::create()-> select("*")
 		->from("ordertbl")
-		->where("facilityCode='$facility_c' AND orderStatus='Pending' ")
+		->where("facilityCode='$facility_c' AND orderStatus='pending' ")
 		->OrderBy("id desc");
 		$order=$query->execute();
 		return $order;
@@ -199,7 +211,7 @@ public static function get_all_orders_moh(){
 		$query=Doctrine_Query::create()-> 
         select("ordertbl.id")->
 		from("ordertbl,facilities,districts")->where("ordertbl.facilityCode=facilities.facility_code")
-		->andWhere("approvalDate is NULL and orderStatus='Pending' and facilities.district=districts.id")
+		->andWhere("approvalDate is NULL and orderStatus='pending' and facilities.district=districts.id")
 		
 		->andWhere("$addition");
 		$order=$query->count();
@@ -220,7 +232,7 @@ public static function get_all_orders_moh(){
 
 		public static function get_county_orders($county){
 		$query=Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("SELECT
-			(SELECT COUNT( o.facilityCode) FROM ordertbl o WHERE o.orderStatus='Pending' AND o.facilityCode=f.facility_code
+			(SELECT COUNT( o.facilityCode) FROM ordertbl o WHERE o.orderStatus='pending' AND o.facilityCode=f.facility_code
             AND f.district=d.id
 			AND d.county=c.id
 			AND c.id=$county) as pending_count,

@@ -8,15 +8,15 @@ class Order_Management extends auto_sms {
 		$this->load->library('mpdf');
 	}
 
-	public function index($tab=NULL) {
-		$this -> listing($tab);
+	public function index($tab=NULL,$status=null) {
+		$this -> listing($tab,$status);
 	}
 	public function new_order($note=NULL) {
 
 		if(isset($note)){
 	    $facility_c=$this -> session -> userdata('news');
         $data['title'] = "New Order";
-		$data['content_view'] = "new_order_v";
+		$data['content_view'] = "facility/facility_data/facility_orders/new_order_v";
 		$data['banner_text'] = "New Order";
 		$data['link'] = "order_management";
 		$data['drug_name']=Drug_Category::getAll();				
@@ -295,7 +295,7 @@ public function kemsa_approve_order(){
          $count++;	
 }
 }
-	public function listing($tab) {
+	public function listing($tab,$status) {
 		 $facility_c=$this -> session -> userdata('news');
 		// echo $facility_c;
 		$data['myClass'] = $this;
@@ -303,9 +303,11 @@ public function kemsa_approve_order(){
 		$data['pending_d'] = Ordertbl::getPending_d($facility_c);
 		$data['dispatched'] = Ordertbl::getDispatched($facility_c);
 		$data['received']=Ordertbl::get_received($facility_c);
+		$data['rejected']=Ordertbl::get_rejected($facility_c);
 		$data['title'] = "All Orders";
+		$data['status']=$status;
 		$data['quick_link'] = "order_listing";
-		$data['content_view'] = "orders_listing_v$tab";
+		$data['content_view'] = "facility/facility_data/facility_orders/orders_listing_v$tab";
 		$data['banner_text'] = "All Orders";
 		$data['link'] = "order_management"; 
 		$this -> load -> view("template", $data);
@@ -464,6 +466,24 @@ else{
 		echo 'success quantity= '.$qty[1].'Comment= '.$qty[2].'kemsa_code= '.$code;
 	}
 	
+	public function delete_order($order_id){
+		
+		
+		
+		$reset_facility_order_table = Doctrine_Manager::getInstance()->getCurrentConnection();
+	    $reset_facility_order_table->execute("DELETE FROM `orderdetails` WHERE  orderNumber=$order_id; ");	
+
+	
+	    $reset_facility_order_table = Doctrine_Manager::getInstance()->getCurrentConnection();
+	    $reset_facility_order_table->execute("DELETE FROM `ordertbl` WHERE  id=$order_id; ");
+		
+		$this->session->set_flashdata('system_success_message', "Order Number $order_id has been deleted");
+		
+		redirect('/');
+		
+		
+	}
+	
 	public function makeOrder(){
 		$drawing_rights=0;
 		$ids=$_POST['kemsaCode'];
@@ -483,10 +503,7 @@ else{
 		$bed_capacity=$_POST['bed_capacity'];
 		$historical_consumption=$_POST['historical'];
 		$orderDate=date('y-m-d'); 
-		
-		
-	
-		
+
 		$facilityCode=$facility_c=$this -> session -> userdata('news');
 		$user_id=$facility_c=$this -> session -> userdata('user_id');
 		$drawing_rights = $this -> session -> userdata('drawing_rights');
@@ -771,6 +788,266 @@ else{
 	redirect('Order_Management/#tabs-1');
 	
 	}
+
+public function update_order(){
+
+		
+		$new_value=@$_POST['quantity'];
+		$price=@$_POST['price'];
+		$order_id=@$_POST['order_id'];
+		$value=count($new_value);
+		$code=@$_POST['f_order_id'];
+		$s_quantity=@$_POST['actual_quantity'];
+		$order_total=0;
+		$rejected_order=@$_POST['rejected_order'];
+		
+		
+		
+		($value==0)?redirect("order_management") : $blank_data;
+		
+
+		for($i=0;$i<$value;$i++){
+				
+		$myobj = Doctrine::getTable('Orderdetails')->find($order_id[$i]);
+        $myobj->quantityOrdered = $new_value[$i];
+		$myobj->s_quantity =$s_quantity[$i];
+        $myobj->save();
+		//$total=$total*($new_value[$i]*$price[$i]);
+			//echo $new_value[$i];
+		}
+	
+		if($rejected_order=='true'){
+			$from_ordertbl=Ordertbl::get_order($code);
+			
+
+		$total=0;
+		
+		//update the order based on how the district pham has rationalized it
+		$checker=1;
+
+		$in = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("SELECT a.category_name, b.drug_name,b.total_units, b.kemsa_code, b.unit_size, b.unit_cost, 
+		c.quantityOrdered, c.price, c.orderNumber, c.quantityRecieved,
+		c.o_balance, c.t_receipts, c.t_issues, c.adjust, c.losses, c.days, c.comment, c.c_stock,c.s_quantity
+FROM drug_category a, drug b, orderdetails c
+WHERE c.orderNumber =$code
+AND b.id = c.kemsa_code
+AND a.id = b.drug_category
+ORDER BY a.id ASC , b.drug_name ASC ");
+		
+		$jay=count($in);
+		
+		
+		//create the report title
+		$html_title="<div ALIGN=CENTER><img src='".base_url()."Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
+      <div style='text-align:center; font-size: 14px;display: block;font-weight: bold;'>Order Report</div>
+       <div style='text-align:center; font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 14px;'>
+       Ministry of Health</div>
+        <div style='text-align:center; font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold;display: block; font-size: 13px;'>Health Commodities Management Platform</div><hr />   ";
+		
+		//get the facility name and MFL code 
+		
+		foreach($from_ordertbl as $order){
+			
+		$o_date=$order->orderDate;
+		$a_date=$order->approvalDate;
+		$o_total=$order->orderTotal;
+		$d_rights=$order->drawing_rights;
+		$bal=$d_rights-$o_total;
+		$creator=$order->orderby;
+		$approver=$order->approveby;
+		
+			foreach($order->Code as $f_name){ $fac_name=$f_name->facility_name; }
+			$mfl=$order->facilityCode;
+			$myobj = Doctrine::getTable('Facilities')->findOneByfacility_code($mfl);
+            $diasto= $myobj->district;
+            $myobj1 = Doctrine::getTable('Districts')->find($diasto);
+			$disto_name=$myobj1->district;
+			$county=$myobj1->county;
+			$myobj2 = Doctrine::getTable('Counties')->find($county);
+			$county_name=$myobj2->county;
+			
+			$myobj_order = Doctrine::getTable('User')->find($creator);
+			$creator_name=$myobj_order->email;
+			$creator_name1=$myobj_order->fname;
+			$creator_name2=$myobj_order->lname;
+			$creator_telephone=$myobj_order->telephone;
+		   
+        }
+        //create the table for displaying the order details
+$html_body="<table class='data-table' width=100%>
+<tr>
+<td>MFL No: $mfl</td> 
+<td >Health Facility Name:<br/> $fac_name</td>
+<td >Total OPD Visits & Revisits: </td>
+<td >Level:</td>
+<td>Dispensary</td>
+<td >Health Centre</td>
+</tr>
+<tr>
+<td>County: $county_name</td> 
+<td > District: $disto_name</td>
+<td >In-patient Bed Days : </td>
+<td >Order Date:<br/> ".date('d M, Y',strtotime ($o_date))." </td>
+<td>Order no.</td>
+<td >Reporting Period <br/>
+Start Date:  <br/>  End Date: ".date('d M, Y',strtotime ($o_date))."
+</td>
+</tr>
+</table>";        
+$html_body .="<style>table.data-table {border: 1px solid #DDD;margin: 10px auto;border-spacing: 0px;}
+table.data-table th {border: none;color: #036;text-align: center;background-color: 	#FFF380;border: 1px solid #DDD;border-top: none;max-width: 450px;}
+table.data-table td, table th {padding: 4px;}
+table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px solid #DDD;height: 30px;margin: 0px;border-bottom: 1px solid #DDD;}
+</style>
+<table class='data-table'>
+
+
+<thead><tr><th><b>KEMSA Code</b></th><th><b>Description</b></th><th><b>Order Unit Size</b></th><th><b>Order Unit Cost</b></th><th ><b>Opening Balance</b></th>
+<th ><b>Total Receipts</b></th><th><b>Total issues</b></th><th><b>Adjustments</b></th><th><b>Losses</b></th><th><b>Closing Stock</b></th><th><b>No days out of stock</b></th>
+<th><b>Order Quantity (Packs)</b></th><th><b>Order Quantity (Actual Units)</b></th><th><b>Order cost(Ksh)</b></th><th><b>Comment</b></th></tr> </thead><tbody>";
+
+       
+	   $html_body .='<ol type="a">' ;
+       for($i=0;$i<$jay;$i++){
+       	
+       			 
+       		if ($i==0) {
+				$html_body .='<tr style="background-color:#C6DEFF;"> <td colspan="15" >
+				 <li> '.$in[$i]['category_name'].' </li> </td></tr>'; 
+			   }
+       	
+else if( $in[$i]['category_name']!=$in[$i-1]['category_name']){
+       	 	$html_body .='<tr style="background-color:#C6DEFF;"> <td  colspan="15"> 
+       	 	<li> '.$in[$i]['category_name'].' </li> </td></tr>';
+       	 }
+         $adj=$in[$i]['adjust'];
+		 $c_stock=$in[$i]['c_stock'];
+		 $o_t=$in[$i]['quantityOrdered'];
+		 $o_q=$in[$i]['price'];
+		 $o_bal=$in[$i]['o_balance'];
+		 $t_re=$in[$i]['t_receipts'];
+		 $t_issues=$in[$i]['t_issues'];
+		 $losses=$in[$i]['losses'];
+		 $total=$o_t*$in[$i]['total_units'];
+		 
+		/* if($o_bal==0 && $t_re==0 && $t_issues>0){
+		 	$adj=$t_issues;
+		 }
+		 $c_stock=$o_bal+$t_re+$adj-$losses-$t_issues;
+		 
+		 if($c_stock<0){
+		 	$adj=$c_stock*-1;
+		 }*/
+		  $c_stock=$o_bal+$t_re+$adj-$losses-$t_issues;
+		 $html_body .="<tr>";
+		 $html_body .="<td>".$in[$i]['kemsa_code']."</td>"; 	
+		 
+		  $html_body .="<td>".$in[$i]['drug_name']."</td>";
+		  $html_body .="<td>".$in[$i]['unit_size']."</td>";
+		  $ot=number_format($o_t*$o_q, 2, '.', ',');
+		  $order_total=$order_total+($o_t*$o_q);
+		  $html_body .="<td>$o_q</td>";
+		  $html_body .="<td>". $o_bal."</td>"; 
+		  $html_body .="<td>".$t_re."</td>";
+		  $html_body .="<td>".$t_issues."</td>";
+		  $html_body .="<td>".$adj."</td>";
+		  $html_body .="<td>".$losses."</td>";
+		  $html_body .="<td>".$c_stock."</td>";
+		  $html_body .="<td>".$in[$i]['days']."</td>"; 
+		  $html_body .="<td>$o_t</td>";
+		  $html_body .="<td>$total</td>"; 
+		  $html_body .="<td>$ot</td>"; 
+		  $html_body .="<td>".$in[$i]['comment']."</td></tr>"; }
+
+            
+			
+			$myobj_approve = Doctrine::getTable('User')->find($approver);
+			$approve_name=$myobj_approve->email;
+			$approve_name1=$myobj_approve->fname;
+			$approve_name2=$myobj_approve->lname;
+			$approve_telephone=$myobj_approve->telephone;
+
+          $bal=$d_rights-$order_total;
+		  $html_body .='</tbody></table></ol>'; 
+		  $html_body1 ='<table class="data-table" width="100%" style="background-color: 	#FFF380;">
+		  <tr style="background-color: 	#FFFFFF;" > <td colspan="4" ><div style="float: left" > Total Order Value:</div><div style="float: right" >KSH '.number_format($order_total, 2, '.', ',').'</div> </td></tr>
+		   <tr style="background-color: 	#FFFFFF;"  > <td colspan="4" ><div style="float: left" > Drawing Rights Available Balance:</div><div style="float: right" >KSH		'.number_format($bal, 2, '.', ',').'</div> </td></tr>
+		   <tr><td>FACILITY TEL NO:</td><td colspan="3">FACILITY EMAIL:</td>
+		   </tr>
+		   <tr><td >Prepared by (Name/Designation) '.$creator_name1.' '.$creator_name2.'
+		   <br/>
+		   <br/>Email: '.$creator_name.'</td><td>Tel: '.$creator_telephone.'</td><td>Date: '.date('d M, Y',strtotime ($o_date)).'</td><td>Signature</td>
+		   </tr>
+		   <tr><td>Checked by (Name/DPF/DPHN)
+		   <br/>
+		   <br/>Email</td><td>Tel</td><td>Date</td><td>Signature</td>
+		   </tr>
+		   <tr><td>Authorised by (Name/DMoH) '.$approve_name1.' '.$approve_name2.'
+		   <br/>
+		   <br/>Email: '.$approve_name.'</td><td>Tel: '.$approve_telephone.'</td><td>Date: '.date('d M, Y',strtotime ($a_date)).'</td><td>Signature</td>
+		   
+		   </tr>
+		   </table>';
+		   
+		 $myobj = Doctrine::getTable('Ordertbl')->find($code);
+        $myobj->orderTotal =$order_total;
+		$myobj->orderStatus ="pending";
+        $myobj->save();
+		
+
+		
+		//now ganerate an order pdf from the generated report
+            $this->mpdf = new mPDF('', 'A4-L', 0, '', 15, 15, 16, 16, 9, 9, '');
+            $this->mpdf->WriteHTML($html_title);
+            $this->mpdf->defaultheaderline = 1;  
+            $this->mpdf->simpleTables = true;
+            $this->mpdf->WriteHTML($html_body);
+            $this->mpdf->AddPage();
+			$this->mpdf->WriteHTML($html_body1);
+			
+			$report_name='updated_facility_order_no_'.$code.'_'.date('d-m-y');
+		
+           		  
+			if(!write_file( './pdf/'.$report_name.'.pdf',$this->mpdf->Output('$report_name','S')))
+			{
+				
+		$this->session->set_flashdata('system_error_message', 'An error occured');			
+        redirect("order_approval/district_orders");
+ 
+             }
+                  else{
+			  
+			  $subject='Update Order Report For '.$fac_name.' Date'.date('d-m-y');
+ 
+  
+  $attach_file='./pdf/'.$report_name.'.pdf';
+    
+  $message=$html_title.$html_body;
+  
+  ;	
+	$message_1='<br>Please find the order for  '.$fac_name.' which has been updated for approval 
+		<br>
+		<br>';
+		
+  
+  $response= $this->send_order_submission_email($message_1.$message.$html_body1,$subject,$attach_file,$mfl);
+    $this->send_order_sms();	
+ if($response){
+ 	delete_files('./pdf/'.$report_name.'.pdf');
+ }
+					
+  }
+
+    }
+else{
+	//do nothing just update the order
+}
+	$this->session->set_flashdata('system_success_message', 'Your order # '.$code.' has been updated');	
+	redirect('Order_Management/#tabs-1');
+ 
+	
+}
+
 	public function moh_order_v(){
 		
 		$checker=$this->uri->segment(3);

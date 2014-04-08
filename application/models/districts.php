@@ -1,6 +1,8 @@
 <?php
-class Districts extends Doctrine_Record {
-	public function setTableDefinition() {
+class Districts extends Doctrine_Record 
+{
+	public function setTableDefinition() 
+	{
 		$this -> hasColumn('district', 'varchar',30);
 		$this -> hasColumn('county', 'varchar',30);	
 	}
@@ -39,7 +41,7 @@ public static function get_district_name_($district){
 	$query = Doctrine_Query::create() -> select("district") -> from("districts")->where("id='$district'");
 		$drugs = $query -> execute();
 		$drugs=$drugs->toArray();
-		return $drugs[0];
+		return $drugs;
 	}
 
 

@@ -1,10 +1,10 @@
 <?php
 
-$from=$this -> session -> userdata('from');
-$to=$this -> session -> userdata('to');
-$desc=$this -> session -> userdata('desc');
-$drugname=$this -> session -> userdata('drugname');
-$facility_Code=$this -> session -> userdata('news');
+	$from = $this -> session -> userdata('from');
+	$to = $this -> session -> userdata('to');
+	$desc = $this -> session -> userdata('desc');
+	$drugname = $this -> session -> userdata('drugname');
+	$facility_Code = $this -> session -> userdata('news');
 
 
 ?>
@@ -66,7 +66,7 @@ table.data-table1 td {
 </style>
 <?php
 
-echo form_open('Raw_data/get_stockcontrolpdf');
+	echo form_open('Raw_data/get_stockcontrolpdf');
  
 ?>
 <div class="whole_report">

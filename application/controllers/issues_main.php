@@ -2,63 +2,52 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 include_once 'auto_sms.php';
-class Issues_main extends auto_sms {
-		function __construct() {
+class Issues_main extends auto_sms 
+{
+	function __construct() 
+	{
 		parent::__construct();
 		$this->load->helper(array('form','url'));
 		
-		
 	}
-	
-	
-	public function index($checker=NULL,$pop_up_msg=NULL){
-		$facility=$this -> session -> userdata('news');
-		//$facility=$this->uri->segment(4);
-
-			switch ($checker)
-			{
-				case 'Internal':
-					
-					$data['content_view'] = "IssueInternal_v";
-					$data['title'] = "Stock";
-					$data['banner_text'] = "Issue";
-					$data['link'] = "IssuesnReceipts";
-					$data['quick_link'] = "IssueInternal_v";
-					
-					break;
-					case 'External':
-						
-						$data['content_view'] = "IssueExternal_v";
-						//$data['content_view'] = "IssueExternal_v";						
-						$county=districts::get_county_id($this -> session -> userdata('district1'));
-						$data['district']=districts::getDistrict($county[0]['county']);
-						$data['banner_text'] = "Donate";
-						$data['title'] = "Stock";
-						$data['quick_link'] = "IssueExternal_v";
-						
-					break;
-					
-					case 'Donation':
-										   
-		        $data['title'] = "Update Stock Level: Donation";
-     	        $data['content_view'] = "facility/update_stock_donation_v";
-		        $data['banner_text'] = "Update Stock Level: Donation";
-		        $data['drug_categories'] = Drug_Category::getAll();
-		        $data['quick_link'] = "update_stock_level";
-		
-	   
-						break;
-					
-					default;
-						
-						$data['content_view'] = "issuesnRecpt";
-						$data['banner_text'] = "Issues Home";
-						$data['title'] = "Stock";
-						$data['quick_link'] = "issuenRecpt";
-						$data['popout']=$pop_up_msg;
+	public function index($checker = NULL,$pop_up_msg = NULL)
+	{
+		$facility = $this -> session -> userdata('news');
+		switch ($checker)
+		{
+			case 'Internal':
+			$data['content_view'] = "IssueInternal_v";
+			$data['title'] = "Stock";
+			$data['banner_text'] = "Issue";
+			$data['link'] = "IssuesnReceipts";
+			$data['quick_link'] = "IssueInternal_v";
+			break;
+			
+			case 'External':
+			$data['content_view'] = "IssueExternal_v";
+			$county=districts::get_county_id($this -> session -> userdata('district1'));
+			$data['district']=districts::getDistrict($county[0]['county']);
+			$data['banner_text'] = "Donate";
+			$data['title'] = "Stock";
+			$data['quick_link'] = "IssueExternal_v";
+			break;
+			
+			case 'Donation':
+			$data['title'] = "Update Stock Level: Donation";
+	        $data['content_view'] = "facility/update_stock_donation_v";
+	        $data['banner_text'] = "Update Stock Level: Donation";
+	        $data['drug_categories'] = Drug_Category::getAll();
+	        $data['quick_link'] = "update_stock_level";
+			break;
+			
+			default;
+			$data['content_view'] = "issuesnRecpt";
+			$data['banner_text'] = "Issues Home";
+			$data['title'] = "Stock";
+			$data['quick_link'] = "issuenRecpt";
+			$data['popout']=$pop_up_msg;
 									
-			}
-
+		}
 		
 		$data['service']=Service::getall($facility);		
 		$data['drugs'] = Facility_Stock::getAllStock($facility);
@@ -362,17 +351,17 @@ public function InsertExt()
 public function donation()
 	{
 		
-		$facility_c=$this -> session -> userdata('news');
-		$usernow=$this -> session -> userdata('identity'); 
+		$facility_c = $this -> session -> userdata('news');
+		$usernow = $this -> session -> userdata('identity'); 
 		
-		$kemsa_code=$_POST['kemsa_code'];
-		$expiry_date=$_POST['expiry_date'];
-		$batch_no=$_POST['batch_no'];
-		$manuf=$_POST['manuf'];
-		$a_stock=$_POST['qreceived'];
-		$count=count($kemsa_code);
-		$source=$_POST['source'];
-		$orderDate=date('y-m-d H:i:s');
+		$kemsa_code = $_POST['kemsa_code'];
+		$expiry_date = $_POST['expiry_date'];
+		$batch_no = $_POST['batch_no'];
+		$manuf = $_POST['manuf'];
+		$a_stock = $_POST['qreceived'];
+		$count = count($kemsa_code);
+		$source = $_POST['source'];
+		$orderDate = date('y-m-d H:i:s');
 				;
 		
 		for($i=0;$i<=$count;$i++){

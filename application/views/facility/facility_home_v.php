@@ -90,6 +90,15 @@ $(document).ready(function(){
 			</p>
 		</div>
 		<?php endif;?>
+		  <?php if($rejected_orders >0):?>
+		<div class="message warning">
+			<h2>Orders Rejected by District Pharmacist</h2>
+			<p>
+				<a class="link" href="<?php 
+				 echo site_url("Order_Management/index/#tabs-0/true");?>"><?php echo $rejected_orders;?> Order(s) rejected</a> 
+			</p>
+		</div>
+		<?php endif;?>
 		<?php if($pending_orders_d>0):?>
 		<div class="message warning">
 			<h2>Pending Dispatch</h2>
@@ -165,6 +174,9 @@ $(document).ready(function(){
 		<div class="activity ext">
 		<a href="<?php echo site_url('Issues_main/Index/External/'.$facility);?>"><h2>Donate Commodities</h2></a>
 		</div>	
+		<!--<div class="activity order">
+		<a href="<?php echo site_url('Report_Management/Write_report')?>"><h2>Enter Facility Malaria Report</h2></a>
+		</div>-->
 
 		<div class="activity ext">
 		<a href="<?php echo site_url('Issues_main/Index/Donation/'.$facility)?>"><h2>Receive Donation From Other Sources</h2></a>
@@ -185,7 +197,7 @@ $(document).ready(function(){
 	    <a href="<?php echo site_url('order_management/stock_level/v');?>"><h2>Update Physical Stock Count</h2>	</a>
 		</div>-->
 		<div class="activity reports">
-	    <a href="<?php echo site_url('report_management/reports_Home');?>">	<h2>Facility Reports</h2>	</a>
+	    <a href="<?php echo site_url('report_management/reports_data');?>">	<h2>Facility Reports</h2>	</a>
 		</div>	
 		<!--<div class="activity settings">
 	    <a href="<?php echo site_url('report_management/facility_settings');?>"><h2>Settings</h2>	</a>

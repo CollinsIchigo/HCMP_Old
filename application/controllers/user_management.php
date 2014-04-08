@@ -2,45 +2,48 @@
 include_once 'auto_sms.php';
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
-class User_Management extends auto_sms {
-	function __construct() {
+class User_Management extends auto_sms 
+{
+	function __construct() 
+	{
 		parent::__construct();
 		
 		$this->load->helper(array('form','url'));
 		$this->load->library('form_validation');
 	}
-public function change_password(){
-	$this -> load -> view("ajax_view/change_password");
-}
-////////////////////////////
-	public function index() {
+	public function change_password()
+	{
+		$this -> load -> view("ajax_view/change_password");
+	}
+
+	public function index() 
+	{
 		$data = array();
 		$data['title'] = "Login";
 		$this -> load -> view("login_v", $data);
 	}
 
-	public function login() {
+	public function login() 
+	{
 		$data = array();
 		$data['title'] = "Login";
 		$this -> load -> view("login_v", $data);
 	}
-	public function logout(){
+	public function logout()
+	{
 		//$this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file'));
 		$data = array();
-		
 		Log::update_log_out_action($this -> session -> userdata('identity'));
-		
 		$this->session->sess_destroy();
 		//$this->cache->clean();
 		$this->db->cache_delete_all();
-		
 		$data['title'] = "Login";		
 		$this -> load -> view("login_v", $data);
 	}
 /////////////////// edit user details
 
-public function edit_user_profile(){
-	
+	public function edit_user_profile()
+	{
 	    $f_name= $this->input->post('f_name');
 		$other_name=$this->input->post('o_name');
 		$phone=$this->input->post('phone_no');
@@ -83,22 +86,24 @@ public function edit_user_profile(){
 				endswitch;
 	
 	    redirect($redirect_to);
-}
-
-public function submit() {
-	if($this->input->post('username')){
-	   $username=$_POST['username'];
-		$password=$_POST['password'];	
 	}
-	
-		
-		if ($this->_submit_validate() === FALSE) {
+
+	public function submit() 
+	{
+		if($this->input->post('username'))
+		{
+			$username=$_POST['username'];
+			$password=$_POST['password'];	
+		}
+				
+		if ($this->_submit_validate() === FALSE) 
+		{
 			$this->index();
 			return;
 		}
 		//$this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file'));
-		$reply=User::login($username, $password);
-		$n=$reply->toArray();
+		$reply = User::login($username, $password);
+		$n = $reply->toArray();
 		//echo($n['username']);
 
 		$myvalue=$n['usertype_id'];
@@ -112,53 +117,72 @@ public function submit() {
 		$user_email=$n['email'];
 		$county_id=$n['county_id'];
         $county_name="";
-		if($faci>0){
-		$myobj = Doctrine::getTable('facilities')->findOneByfacility_code($faci);
-        $facility_name=$myobj->facility_name ;	
-		$drawing_rights=$myobj->drawing_rights;
+		
+		if($faci>0)
+		{
+			$myobj = Doctrine::getTable('facilities')->findOneByfacility_code($faci);
+	        $facility_name=$myobj->facility_name ;	
+			$drawing_rights=$myobj->drawing_rights;
 		}
         
-		if($disto>0){
-		$myobj = Doctrine::getTable('districts')->find($disto);
-        $dist=$myobj->district;	
+		if($disto>0)
+		{
+			$myobj = Doctrine::getTable('districts')->find($disto);
+	        $dist=$myobj->district;	
 		}
-		if($county_id>0){
-		$myobj = Doctrine::getTable('counties')->find($county_id);
-        $county_name=$myobj->county;	
+		if($county_id>0)
+		{
+			$myobj = Doctrine::getTable('counties')->find($county_id);
+	        $county_name=$myobj->county;	
 		}
 		$moh="MOH Official";
 		$moh_user="MOH User";
 		$kemsa="KEMSA Representative";
 		$rtk="RTK Program Manager";
 		$super_admin="Super Admin";
-		$county=   $county_name." County Facilitator";
-		$allocation="Allocation committee";
-		$dpp="District Lab Technologist";
+		$county = $county_name." County Facilitator";
+		$allocation = "Allocation committee";
+		$dpp = "District Lab Technologist";
 		
-       if ($myvalue ==1) {
+       if ($myvalue ==1) 
+       {
        		$session_data = array('county_id'=>$county_id,'phone_no'=>$phone,
        		'user_email'=>$user_email,'full_name' =>$moh ,'user_id'=>$user_id,
        		'user_indicator'=>"moh",'names'=>$namer,'inames'=>$inames,'identity'=>$id_d,
        		'news'=>$faci,'district1'=>$disto,'county_name'=>$county_name);	
-		} else if($myvalue==4){
+			
+		} else if($myvalue==4)
+		{
 			$session_data = array('county_id'=>$county_id,'phone_no'=>$phone,
 			'user_email'=>$user_email,'full_name' =>$moh_user ,'user_id'=>$user_id,
 			'user_indicator'=>"moh_user",'names'=>$namer,'inames'=>$inames,
 			'identity'=>$id_d,'news'=>$faci,'district1'=>$disto,
 			'county_name'=>$county_name);
-		}else if($myvalue==5){
+			
+		}else if($myvalue==5)
+		{
 			$session_data = array('county_id'=>$county_id,'phone_no'=>$phone,
 			'user_email'=>$user_email,'full_name' =>$facility_name ,'user_id'=>$user_id,
 			'user_indicator'=>"fac_user",'names'=>$namer,'inames'=>$inames,'identity'=>$id_d,
 			'news'=>$faci,'district1'=>$disto, 
 			'drawing_rights'=>$drawing_rights, 'county_name'=>$county_name);
-		}else if($myvalue ==3){
-			$session_data = array('county_id'=>$county_id,'phone_no'=>$phone,
-			'user_email'=>$user_email,'user_db_id'=>$user_id,'full_name' =>$dist
-			 ,'user_id'=>$user_id,'user_indicator'=>"district",'names'=>$namer,
-			 'inames'=>$inames,'identity'=>$id_d,'news'=>$faci,
-			  'district'=>$n['district'],'district1'=>$disto, 
-			  'county_name'=>$county_name);
+			
+		}else if($myvalue ==3)
+		{
+			$session_data = array('county_id'=>$county_id,
+									'phone_no'=>$phone,
+									'user_email'=>$user_email,
+									'user_db_id'=>$user_id,
+									'full_name' =>$dist,
+									'user_id'=>$user_id,
+									 'user_indicator'=>"district",
+									 'names'=>$namer,
+									 'inames'=>$inames,
+									 'identity'=>$id_d,
+									 'news'=>$faci,
+									  'district'=>$n['district'],
+									  'district1'=>$disto, 
+									  'county_name'=>$county_name);
 		}else if($myvalue ==6){
 			$session_data = array('county_id'=>$county_id,
 			'phone_no'=>$phone,'user_email'=>$user_email,'full_name' =>$kemsa,
@@ -231,16 +255,11 @@ public function submit() {
 }
 
 
-	private function _submit_validate() {
-
-		$this->form_validation->set_rules('username', 'Username',
-			'trim|required|callback_authenticate');
-
-		$this->form_validation->set_rules('password', 'Password',
-			'trim|required');
-
+	private function _submit_validate() 
+	{
+		$this->form_validation->set_rules('username', 'Username','trim|required|callback_authenticate');
+		$this->form_validation->set_rules('password', 'Password','trim|required');
 		$this->form_validation->set_message('authenticate','Invalid login. Please try again.');
-
 		return $this->form_validation->run();
 
 	}

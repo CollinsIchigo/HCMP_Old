@@ -3,46 +3,66 @@
 			
 			@import "<?php echo base_url(); ?>DataTables-1.9.3 /media/css/jquery.dataTables.css";
 		</style>
-<?php $current_year = date('Y');
-$earliest_year = $current_year - 10;
-?>
+
 		<script type="text/javascript" charset="utf-8">
-		
-		
 			/* Define two custom functions (asc and desc) for string sorting */
-			jQuery.fn.dataTableExt.oSort['string-case-asc']  = function(x,y) {
-				return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+			jQuery.fn.dataTableExt.oSort['string-case-asc'] = function(x, y) {
+				return ((x < y) ? -1 : ((x > y) ? 1 : 0));
 			};
-			
-			jQuery.fn.dataTableExt.oSort['string-case-desc'] = function(x,y) {
-				return ((x < y) ?  1 : ((x > y) ? -1 : 0));
+
+			jQuery.fn.dataTableExt.oSort['string-case-desc'] = function(x, y) {
+				return ((x < y) ? 1 : ((x > y) ? -1 : 0));
 			};
-			
+
 			$(document).ready(function() {
 				
+				//button to post the order
+			$( ".delete" )
+			.button()
+			.click(function() {
 				
-				$( "#dialog1" ).dialog({
-			height: 140,
-			modal: true
-		});
-	
+		var id=$(this).attr("id");
+				
+	$( "#dialog-confirm" ).dialog({
+      resizable: false,
+      autoOpen: true,
+      height:200,
+      modal: true,
+      buttons: {
+        "Delete all items": function() {
+        	window.location="<?php echo site_url('order_management/delete_order');?>/"+id;	
+          $( this ).dialog( "close" );
+        },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+			});	
+			
+			 $( "#dialog-confirm" ).dialog( {autoOpen: false} );
+
+				$("#dialog1").dialog({
+					height : 140,
+					modal : true
+				});
+
 				/* Build the DataTable with third column using our custom sort functions */
-				$('#example').dataTable( {
-					"bJQueryUI": true,
-					"aaSorting": [ [7,'desc'], [0,'desc'] ],
-					"aoColumnDefs": [
-						{ "sType": 'string-case', "aTargets": [ 2 ] }
-					]
-				} );
-			} );
+				$('#example').dataTable({
+					"bJQueryUI" : true,
+					"aaSorting" : [[7, 'desc'], [0, 'desc']],
+					"aoColumnDefs" : [{
+						"sType" : 'string-case',
+						"aTargets" : [2]
+					}]
+				});
+			});
 		</script> 
-		
-<?php if(isset($msg)): ?>
-<div id="dialog1">    
-<?php echo $msg;?>
+
+			<div id="dialog-confirm" title="Delete facility data?">
+  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+  	<h3 class="text-error">The order will be deleted and cannot be recovered!. Are you sure?</h3></p>
 </div>
-<?php endif;  unset($msg);?>
-	<?php if(count($order_list)>0) :?>
 <div id="notification">Drawing&nbsp;Rights&nbsp;Balance&nbsp;(KSH) = ( Intital Drawing rights - Order Value )</div>
 <table width="100%" id="example">
 	<thead>
@@ -67,49 +87,55 @@ $earliest_year = $current_year - 10;
 	   $bal=$rights-$total;
 ?>
 	<tr>
-		<td><?php echo $rows->id;?></td>
-		<td><?php echo $rows->kemsaOrderid;?></td>
-		<td><?php echo $rows->facilityCode;?></td>
-		<td><?php foreach($rows->Code as $facility)
-		$name=$facility->facility_name;
-		 echo $name ;?></td>
-		<td><?php echo  number_format($rights, 2, '.', ',');?></td>
-		<td><?php echo  number_format($total, 2, '.', ',') ;?></td>
-		<td><?php echo  number_format($bal, 2, '.', ',');?></td>
-		<td><?php 
-		$datea= $rows->orderDate;
-		$fechaa = new DateTime($datea);
-        $datea= $fechaa->format(' d M Y');
-		echo $datea;?></td>
+		<td><?php echo $rows -> id; ?></td>
+		<td><?php echo $rows -> kemsaOrderid; ?></td>
+		<td><?php echo $rows -> facilityCode; ?></td>
 		<td><?php
-		$order_status=$rows->orderStatus;
-		if(strtolower($order_status)=="pending"){
-			$lcol='"btn btn-warning"';
-		}else if(strtolower($order_status)=="approved"){
-			$lcol='"btn btn-info"';
-		}else if(strtolower($order_status)=="delivered"){
-			$lcol='"btn btn-success"';
+			foreach ($rows->Code as $facility)
+				$name = $facility -> facility_name;
+			echo $name;
+		?></td>
+		<td><?php echo number_format($rights, 2, '.', ','); ?></td>
+		<td><?php echo number_format($total, 2, '.', ','); ?></td>
+		<td><?php echo number_format($bal, 2, '.', ','); ?></td>
+		<td><?php
+			$datea = $rows -> orderDate;
+			$fechaa = new DateTime($datea);
+			$datea = $fechaa -> format(' d M Y');
+			echo $datea;
+		?></td>
+		<td><?php
+		$order_status = $rows -> orderStatus;
+		if (strtolower($order_status) == "pending") {
+			$lcol = '"btn btn-warning"';
+		} else if (strtolower($order_status) == "approved") {
+			$lcol = '"btn btn-info"';
+		} else if (strtolower($order_status) == "delivered") {
+			$lcol = '"btn btn-success"';
+		} else if (strtolower($order_status) == "rejected") {
+			$lcol = '"btn btn-danger"';
 		}
+
+		echo ' <button style="text-transform:capitalize;width:6em;" class=' . $lcol . ' type="button">' . $order_status . '</button>';
+	?>
 		
-		 
-		 echo ' <button style="text-transform:capitalize;width:6em;" class='.$lcol.' type="button">'.$order_status.'</button>';?>
-		
-		| <a href="<?php 
-		if(strtolower($order_status)=="pending"){
+		| <a href="<?php
+			if (strtolower($order_status) == "pending" || strtolower($order_status) == "rejected") {
+
+				echo site_url('order_approval/district_order_details/' . $rows -> id . '/');
+			} else {
+				echo site_url('order_management/moh_order_details/' . $rows -> id . '/' . $rows -> kemsaOrderid);
+			}
 			
-			echo site_url('order_approval/district_order_details/'.$rows->id.'/'.$rows->facilityCode);
-		}else{
-			echo site_url('order_management/moh_order_details/'.$rows->id.'/'.$rows->kemsaOrderid);
-		}
+		?>"class="btn btn-inverse" style="margin-right:1em;">View</a> |
+		<a id="<?php echo $rows->id;?>" href="#"class="delete"> 
+		<button style="text-transform:capitalize;width:6em;" class='btn btn-danger'type="button">
+		DELETE</button></a></td>
 		
-		?>"class="btn btn-inverse" style="margin-right:1em;">View</a></td>
+		
 	</tr> 
 	<?php
-		}
+	}
 	?>
 	</tbody>
 </table>
-<?php 
-else :
-	echo '<p id="notification">No Records Found </p>';
-endif; ?>

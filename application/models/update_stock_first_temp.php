@@ -64,10 +64,11 @@ class Update_stock_first_temp extends Doctrine_Record {
 		return count($stocks);
 		
 	}
-	public static function update_facility_temp_data($expiry_date,$batch_no,$manuf,$stock_level,$unit_count,$drug_id,$facility_code){
-	$q = Doctrine_Manager::getInstance()->getCurrentConnection()->execute("
-update update_stock_first_temp set `expiry_date`='$expiry_date',`batch_no`='$batch_no',`manu`='$manuf',`stock_level`='$stock_level',`unit_count`='$unit_count'
-where `facility_code`='$facility_code' and `drug_id`='$drug_id'
-");		
+	public static function update_facility_temp_data($expiry_date,$batch_no,$manuf,$stock_level,$unit_count,$drug_id,$facility_code)
+	{
+		$q = Doctrine_Manager::getInstance()->getCurrentConnection()->execute("
+		update update_stock_first_temp set `expiry_date`='$expiry_date',`batch_no`='$batch_no',`manu`='$manuf',`stock_level`='$stock_level',`unit_count`='$unit_count'
+		where `facility_code`='$facility_code' and `drug_id`='$drug_id'
+		");		
 	}
 }

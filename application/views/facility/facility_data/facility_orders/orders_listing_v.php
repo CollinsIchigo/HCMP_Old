@@ -10,14 +10,47 @@
 		
 		//popout
 		  $( "#dialog" ).dialog();
+		  
+		  
+		  	//button to post the order
+			$( ".delete" )
+			.button()
+			.click(function() {
+				
+		var id=$(this).attr("id");
+				
+	$( "#dialog-confirm" ).dialog({
+      resizable: false,
+      autoOpen: true,
+      height:200,
+      modal: true,
+      buttons: {
+        "Delete all items": function() {
+        	window.location="<?php echo site_url('order_management/delete_order');?>/"+id;	
+          $( this ).dialog( "close" );
+        },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+			});	
+			
+			 $( "#dialog-confirm" ).dialog( {autoOpen: false} );
 	});
 
 </script>
-
+	<div id="dialog-confirm" title="Delete facility data?">
+  <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+  	<h3 class="text-error">The order will be deleted and cannot be recovered!. Are you sure?</h3></p>
+</div>
 <div id="tabs">
 
 	<!--tabs!-->
 	<ul>
+		<li>
+			<a href="#tabs-0">Rejected Orders</a>
+		</li>
 		<li>
 			<a href="#tabs-1">Pending Approval </a>
 		</li>
@@ -31,6 +64,49 @@
 			<a href="#tabs-5">Received by Facility</a>
 		</li>
 	</ul>
+	<div id="tabs-0">
+		<!--tab1 content!-->
+		<?php if(count($rejected)>0) :?>
+		<table class="table-update">
+			<tr>
+				<th><strong>Facility Order No </strong></th>
+				<th><strong>Order Total Ksh</strong></th> 
+				<th><strong>Date Ordered</strong></th> 
+				<th><strong>Days Pending </strong></th>
+				<th>Action</th>
+			</tr>
+			<?php foreach($rejected as $rows):?>
+			<tr>
+				<td><?php echo $rows->id;?></td>
+				<td><?php echo number_format($rows->orderTotal, 2, '.', ',');?></td>
+				<td><?php 
+		$datea= $rows->orderDate;
+		$fechaa = new DateTime($datea);
+		$today=new DateTime();
+        $datea= $fechaa->format(' d  M Y');
+		echo $datea;?></td> 
+				<td><?php 
+		$days1=$myClass->getWorkingDays($fechaa,$today,0);
+        	echo $days1;
+?></td> 
+
+				<td>
+<a href="<?php echo site_url('order_management/moh_order_details/'.$rows->id.'/'.$rows->kemsaOrderid)?>"class="link">View |</a>
+<a href="<?php echo site_url('order_approval/district_order_details/'.$rows->id.'/'.$this -> session -> userdata('news').'/true/true')?>"class="link">Edit </a>|
+<a id="<?php echo $rows->id;?>" href="#"class="delete link">DELETE</a>
+
+</td>
+			</tr>
+			<?php
+ endforeach;
+	?>	 
+		</table>
+		<?php 
+else :
+	echo '<p id="notification">No Records Found </p>';
+endif; ?>
+		<div class="pagination"></div>
+	</div><!--tab1!-->
 	<div id="tabs-1">
 		<!--tab1 content!-->
 		<?php if(count($pending)>0) :?>
@@ -57,7 +133,12 @@
         	echo $days1;
 ?></td> 
 
-				<td><a href="<?php echo site_url('order_management/moh_order_details/'.$rows->id.'/'.$rows->kemsaOrderid)?>"class="link">View</a></td>
+				<td>
+<a href="<?php echo site_url('order_management/moh_order_details/'.$rows->id.'/'.$rows->kemsaOrderid)?>"class="link">View |</a>
+<a href="<?php echo site_url('order_approval/district_order_details/'.$rows->id.'/'.$this -> session -> userdata('news').'/true')?>"class="link">Edit</a> |
+<a id="<?php echo $rows->id;?>" href="#"class="delete link">DELETE</a>
+
+</td>
 			</tr>
 			<?php
  endforeach;

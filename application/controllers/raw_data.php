@@ -10,7 +10,8 @@ class Raw_data extends MY_Controller {
 		
 	}
 
-	public function index() {
+	public function index() 
+	{
 		$this -> listing();
 	}
 	public function reports_Home()
@@ -26,19 +27,20 @@ class Raw_data extends MY_Controller {
 	}
 	
 	public function stockchtml()
-{
-		$from=$_POST['from'];
-		$to=$_POST['to'];
-		$desc=$_POST['desc'];
-		$drugname=$_POST['drugname'];
-		$id=$this -> session -> userdata('identity');
+	{
+		$from = $_POST['from'];
+		$to = $_POST['to'];
+		$desc = $_POST['desc'];
+		$drugname = $_POST['drugname'];
+		$id = $this -> session -> userdata('identity');
 		$req_data = array('from'=>$from,'to'=>$to,'desc'=>$desc,'drugname'=>$drugname);
 		$this -> session -> set_userdata($req_data);
-		//echo $from;
-		//$data['title'] = "Stock Control Card";
+		
 		$data['report'] = Facility_Issues::getAll();
-		$mycount= count(Facility_Issues::getAll());
-		if ($mycount>0) {
+		
+		$mycount = count(Facility_Issues::getAll());
+		if ($mycount>0) 
+		{
 			$data['names'] = User::getsome($id);
 			$this -> load -> view("stockchtml", $data);
 			
@@ -47,23 +49,18 @@ class Raw_data extends MY_Controller {
 		}
 				
 		
+	}
+	public function commoditieshtml()
+	{
+		$from = $_POST['fromcommodity'];
+		$to = $_POST['tocommodity'];
+		$facility_Code = $_POST['facilitycode'];
+		$id = $this -> session -> userdata('identity');
 		
-		
-		
-}
-public function commoditieshtml()
-{
-		$from=$_POST['fromcommodity'];
-		$to=$_POST['tocommodity'];
-		$facility_Code=$_POST['facilitycode'];
-		$id=$this -> session -> userdata('identity');
-		//echo "$from";
-	
 		$req_data = array('from'=>$from,'to'=>$to);
 		$this -> session -> set_userdata($req_data);
-		//$data['title'] = "Commodity Issues Summary";
-				
-		$mycount= count(Facility_Issues::getcissues());
+						
+		$mycount = count(Facility_Issues::getcissues());
 		if ($mycount>0) {
 			$data['reports'] = Facility_Issues::getcissues();
 			$data['names'] = User::getsome($id);
@@ -73,24 +70,68 @@ public function commoditieshtml()
 		} else {
 			echo '<div class="norecord"></div>';
 		}
-		
-		
-		
-}
-public function get_stockcontrolpdf(){
 	
-		$from=$_POST['datefromStockC'];
-		$to=$_POST['datetoStockC'];
-		$desc=$_POST['desc'];
-		$drugname=$_POST['drugname'];
-		$facility_Code=$_POST['facilitycode'];
-		$facility=$this -> session -> userdata('news');
-		$id=$this -> session -> userdata('identity');
-		$report_name='Stock Control Card from '.$from.' to '.$to.' '.($drugname);
-		$report = Facility_Issues::getAll();
-		$names= User::getsome($id);
+	}
+	public function malaria_reporthtml()
+	{
+		$from = $_POST['frommalariareport'];
+		$to = $_POST['tomalariareport'];
+		$facility_Code = $_POST['facilitycode'];
+		$id = $this -> session -> userdata('identity');
 		
-		$title='test';
+		$req_data = array('from'=>$from,'to'=>$to);
+		$this -> session -> set_userdata($req_data);
+						
+		$mycount = count(Malaria_Data::getreports());
+		if ($mycount>0) 
+		{
+			$data['reports'] = Malaria_Data::getreports();
+			$data['names'] = User::getsome($id);
+			$data['drugs'] = Drug::getAll();
+			$this -> load -> view("malariareports", $data);
+			
+		} else {
+			echo '<div class="norecord"></div>';
+		}
+	
+	}
+	
+	public function malaria_data()
+	{
+		$from = $_POST['from'];
+		$to = $_POST['to'];
+		$id = $this -> session -> userdata('identity');
+		$req_data = array('from'=>$from,'to'=>$to);
+		$this -> session -> set_userdata($req_data);
+		
+	}
+	public function malaria_data_report()
+	{
+		$from = $_POST['from'];
+		$to = $_POST['to'];
+		$code = $_POST['facilitycode'];
+		$malaria_report = Malaria_Data::get_malariareport($code, $to, $from);
+		
+		$id = $this -> session -> userdata('identity');
+		$req_data = array('from'=>$from,'to'=>$to);
+		$this -> session -> set_userdata($req_data);
+		
+	}
+	public function get_stockcontrolpdf()
+	{
+	
+		$from = $_POST['datefromStockC'];
+		$to = $_POST['datetoStockC'];
+		$desc = $_POST['desc'];
+		$drugname = $_POST['drugname'];
+		$facility_Code = $_POST['facilitycode'];
+		$facility = $this -> session -> userdata('news');
+		$id = $this -> session -> userdata('identity');
+		$report_name = 'Stock Control Card from '.$from.' to '.$to.' '.($drugname);
+		$report = Facility_Issues::getAll();
+		$names = User::getsome($id);
+		
+		$title = 'test';
 		
 			
 											/**************************************set the style for the table****************************************/
@@ -317,74 +358,71 @@ public function generatecommodityI_pdf($report_name,$title,$data,$to,$from,$faci
 		
 }
 
-public function gen_pdf(){
-	$timeinterval=$_POST['timer'];
-	$facility_c=$this -> session -> userdata('news');
-	$report=Facility_Stock::expiries($facility_c,$timeinterval);
+	public function gen_pdf()
+	{
+		$timeinterval=$_POST['timer'];
+		$facility_c=$this -> session -> userdata('news');
+		$report=Facility_Stock::expiries($facility_c,$timeinterval);
+		$report_name='Potential Expiries '.$facility_c.' Next '.$timeinterval.'Months';
+		$title='test';
 	
-	$report_name='Potential Expiries '.$facility_c.' Next '.$timeinterval.'Months';
-	$title='test';
-										/**************************************set the style for the table****************************************/
-
-$html_data='<style>table.data-table {border: 1px solid #DDD;margin: 10px auto;border-spacing: 0px;}
-table.data-table th {border: none;color: #036;text-align: center;background-color: #F5F5F5;border: 1px solid #DDD;border-top: none;max-width: 450px;}
-table.data-table td, table th {padding: 4px;}
-table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px solid #DDD;height: 30px;margin: 0px;border-bottom: 1px solid #DDD;}
-.col5{background:#C9C299;}</style>';
-
-
+	 
+	 //**************************************set the style for the table****************************************/
+	
+		$html_data='<style>table.data-table {border: 1px solid #DDD;margin: 10px auto;border-spacing: 0px;}
+		table.data-table th {border: none;color: #036;text-align: center;background-color: #F5F5F5;border: 1px solid #DDD;border-top: none;max-width: 450px;}
+		table.data-table td, table th {padding: 4px;}
+		table.data-table td {border: none;border-left: 1px solid #DDD;border-right: 1px solid #DDD;height: 30px;margin: 0px;border-bottom: 1px solid #DDD;}
+		.col5{background:#C9C299;}</style>';
+		
 		$html_data1 ='';	
 		
 		/*****************************setting up the report*******************************************/
 
-$html_data1 .='<table class="data-table"><thead>
+	$html_data1 .='<table class="data-table"><thead>
+	
+				<tr > 
+				<th><strong>Kemsa Code</strong></th>
+			<th><strong>Description</strong></th>
+			<th><strong>Unit size</strong></th>
+			<th><strong>Unit Cost</strong></th>
+			<th><strong>Batch No</strong></th>
+			<th><strong>Expiry Date</strong></th>
+			<th><strong><b>Units</b></strong></th>
+			<th><strong><b>Stock Worth(Ksh)</b></strong></th>
+		</tr><tbody>';
 
-			<tr > 
-			<th><strong>Kemsa Code</strong></th>
-		<th><strong>Description</strong></th>
-		<th><strong>Unit size</strong></th>
-		<th><strong>Unit Cost</strong></th>
-		<th><strong>Batch No</strong></th>
-		<th><strong>Expiry Date</strong></th>
-		<th><strong><b>Units</b></strong></th>
-		<th><strong><b>Stock Worth(Ksh)</b></strong></th>
-	</tr><tbody>';
+	/*******************************begin adding data to the report*****************************************/
 
-/*******************************begin adding data to the report*****************************************/
-
-	foreach($report as $drug){
-			
-				
-					foreach($drug->Code as $d){ 
-								$name=$d->Drug_Name;
-								$code=$d->Kemsa_Code;
-					            $unitS=$d->Unit_Size; 
-								$unitC=$d->Unit_Cost;
-								$calc=$drug->balance;
-								$thedate=$drug->expiry_date;
-								$formatme = new DateTime($thedate);
-								 $myvalue= $formatme->format('d M Y');					    
+	foreach($report as $drug)
+	{
+		foreach($drug->Code as $d)
+		{
+			$name=$d->Drug_Name;
+			$code=$d->Kemsa_Code;
+            $unitS=$d->Unit_Size; 
+			$unitC=$d->Unit_Cost;
+			$calc=$drug->balance;
+			$thedate=$drug->expiry_date;
+			$formatme = new DateTime($thedate);
+			$myvalue= $formatme->format('d M Y');					    
 							    
-							
-		 $html_data1 .='<tr>
-		 
-		 					<td>'.$code.'</td>
-		 					<td>'.$name.'</td>
-		 					<td>'.$unitS.'</td>
-							<td>'.$unitC.'</td>
-							<td>'.$drug->batch_no.'</td>
-							<td>'.$myvalue.'</td>
-							<td>'.$drug->balance.'</td>
-							<td >'.$calc*$unitC.'</td>
-							
-							
+			$html_data1 .='<tr>
+								<td>'.$code.'</td>
+			 					<td>'.$name.'</td>
+			 					<td>'.$unitS.'</td>
+								<td>'.$unitC.'</td>
+								<td>'.$drug->batch_no.'</td>
+								<td>'.$myvalue.'</td>
+								<td>'.$drug->balance.'</td>
+								<td >'.$calc*$unitC.'</td>
 							</tr>';
 
-/***********************************************************************************************/
+	/***********************************************************************************************/
 					
 		  }
 				
-					}
+	}
 		$html_data1 .='</tbody></table>';
 
 		
@@ -400,10 +438,10 @@ $html_data1 .='<table class="data-table"><thead>
 	  	$this->generatePE_pdf($report_name,$title,$html_data,$facility_c,$timeinterval,$formateddate);
 		
 	
-}
+	}
 
-public function generatePE_pdf($report_name,$title,$html_data,$facility_c,$timeinterval,$formateddate)
-{
+	public function generatePE_pdf($report_name,$title,$html_data,$facility_c,$timeinterval,$formateddate)
+	{
 		/********************************************setting the report title*********************/
 		
 		$date = new DateTime();	

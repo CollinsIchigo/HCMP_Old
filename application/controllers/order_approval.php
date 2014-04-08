@@ -36,12 +36,13 @@ include_once('auto_sms.php');
 		$this -> load -> view("template", $data);
 		
 	}
-	public function district_order_details(){
-		$delivery=$this->uri->segment(3);
+	public function district_order_details($delivery,$facility_code=null,$for_facility=null,$rejected_order=null){
+	
 		$data['title'] = "Order detail View";
-     	$data['content_view'] = "district/moh_orderdetail_v";
+     	$data['content_view'] = isset($for_facility)? "facility/facility_data/facility_orders/facility_update_order_v" :"district/moh_orderdetail_v";
 		$data['banner_text'] = "Order detail View";
 		$data['link'] = "home";
+		$data['rejected_order']=$rejected_order;
 		$data['drug_name']=Drug::get_drug_name();
 		$data['quick_link'] = "moh_order_v";
 		$data['order_details']=ordertbl::get_details($delivery)->toArray();
@@ -53,21 +54,24 @@ include_once('auto_sms.php');
 		$this->load->helper('file');
 		$this->load->library('mpdf');
 		
-		$new_value=$_POST['quantity'];
-		$price=$_POST['price'];
-		$order_id=$_POST['order_id'];
+		$new_value=@$_POST['quantity'];
+		$price=@$_POST['price'];
+		$order_id=@$_POST['order_id'];
 		$value=count($new_value);
-		$code=$_POST['f_order_id'];
-		$s_quantity=$_POST['actual_quantity'];
+		$code=@$_POST['f_order_id'];
+		$s_quantity=@$_POST['actual_quantity'];
 		$order_total=0;
-		$user_id=$facility_c=$this -> session -> userdata('user_id');
-		$from_ordertbl=Ordertbl::get_order($code,$user_id);
-
-		$from_order_details=Orderdetails::get_order($code);
-		$total=0;
+		$reject_order=@$_POST['reject_order_status'];
 		
-		//update the order based on how the district pham has rationalized it
-		$checker=1;
+		($value==0)?redirect("order_approval/district_orders") : $blank_data;
+		
+		$user_id=$facility_c=$this -> session -> userdata('user_id');
+		
+		
+		if($reject_order==1){
+			// do not update the order
+		}
+		else{
 		for($i=0;$i<$value;$i++){
 				
 		$myobj = Doctrine::getTable('Orderdetails')->find($order_id[$i]);
@@ -77,9 +81,17 @@ include_once('auto_sms.php');
 		//$total=$total*($new_value[$i]*$price[$i]);
 			//echo $new_value[$i];
 		}
+			
+		}
 		
+		$from_ordertbl=Ordertbl::get_order($code,$user_id);
+
+		$from_order_details=Orderdetails::get_order($code);
+		$total=0;
 		
-		
+		//update the order based on how the district pham has rationalized it
+		$checker=1;
+
 		$in = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("SELECT a.category_name, b.drug_name,b.total_units, b.kemsa_code, b.unit_size, b.unit_cost, 
 		c.quantityOrdered, c.price, c.orderNumber, c.quantityRecieved,
 		c.o_balance, c.t_receipts, c.t_issues, c.adjust, c.losses, c.days, c.comment, c.c_stock,c.s_quantity
@@ -93,7 +105,7 @@ ORDER BY a.id ASC , b.drug_name ASC ");
 		
 		
 		//create the report title
-		$html_title="<div ALIGN=CENTER><img src='".base_url()."Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
+		$html_title="<div ALIGN=CENTER><img src='Images/coat_of_arms.png' height='70' width='70'style='vertical-align: top;' > </img></div>
       <div style='text-align:center; font-size: 14px;display: block;font-weight: bold;'>Order Report</div>
        <div style='text-align:center; font-family: arial,helvetica,clean,sans-serif;display: block; font-weight: bold; font-size: 14px;'>
        Ministry of Health</div>
@@ -256,8 +268,17 @@ else if( $in[$i]['category_name']!=$in[$i-1]['category_name']){
             $this->mpdf->AddPage();
 			$this->mpdf->WriteHTML($html_body1);
 			
-			$report_name='facility_order_no'.$code;
+			if($reject_order==1){
+			$status='rejected';
+			}
+			else{
+			$status='approved';
+			}
 			
+			
+			$report_name=$status.'_facility_order_no_'.$code.'_date_'.date('d-m-y');
+			//$this->mpdf->Output('$report_name','I');
+			//exit;
            		  
 			if(!write_file( './pdf/'.$report_name.'.pdf',$this->mpdf->Output('$report_name','S')))
 			{
@@ -268,26 +289,41 @@ else if( $in[$i]['category_name']!=$in[$i-1]['category_name']){
              }
                   else{
 			  
-  $subject='Approved Order Report For '.$fac_name;
+			  $subject=($reject_order==1)?'Rejected Order Report For '.$fac_name: 'Approved Order Report For '.$fac_name;
+ 
   
   $attach_file='./pdf/'.$report_name.'.pdf';
     
-  $message=$html_title.$html_body;
+  $message=$html_title.$html_body.$html_body1;
   
-  $message_1='<br>Please find the approved Order for  '.$fac_name.' for processing.
+  ;	
+	$message_1=($reject_order==0)?'<br>Please find the approved Order for  '.$fac_name.'
 		<br>
-		<br>';	
+		<br>': '<br>Please note the order for  '.$fac_name.' Has been rejected by '.$approve_name1.' '.$approve_name2.'.
+		<br>
+		Find the attached order, correct it
+		<br>';
+		
   
-  $response= $this->send_order_approval_email($message_1.$message,$subject,$attach_file,$mfl);
+  $response= $this->send_order_approval_email($message_1.$message,$subject,$attach_file,$mfl,$reject_order);
 
  if($response){
  	delete_files('./pdf/'.$report_name.'.pdf');
  }
 					
   }
+				  
 
-   $this->send_order_approval_sms();
-   $this->session->set_flashdata('system_success_message', "Order No $code has been approved");	
+   if($reject_order==1):
+        $myobj = Doctrine::getTable('Ordertbl')->find($code);
+        $myobj->orderStatus ="rejected";
+        $myobj->save();
+   $this->send_order_approval_sms($mfl,$reject_order);
+   $this->session->set_flashdata('system_success_message', "Order No $code has been rejected and the facility personel have been notified");	
+   else:
+   $this->send_order_approval_sms($mfl,$reject_order);
+   $this->session->set_flashdata('system_success_message', "Order No $code has been approved");	 
+   endif;
    redirect("order_approval/district_orders");
  
 	}

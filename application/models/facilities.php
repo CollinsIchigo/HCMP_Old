@@ -23,23 +23,40 @@ class Facilities extends Doctrine_Record {
 		$drugs = $query -> execute();
 		return $drugs;
 	}
-	public static function getFacilities($district){
+	public static function getFacilities($district)
+	{
 		$query = Doctrine_Query::create() -> select("*") -> from("facilities")->where("district='$district'")->OrderBy("facility_name asc");
 		$drugs = $query -> execute();
 		return $drugs;
 	}
-	public static function get_facility_name_($facility_code){
+	public static function get_facility_name_($facility_code)
+	{
+				
+		if($facility_code!=NULL){
+			$query = Doctrine_Query::create() -> select("*") -> from("facilities")->where("facility_code='$facility_code'");
+			$drugs = $query -> execute();
+			$drugs=$drugs->toArray();
+			
+			return $drugs[0];	
+		}	
+		else{
+			return NULL;
+		}	
+				
+	}
+	public static function get_facility_type_($facility_code)
+	{
 				
 	if($facility_code!=NULL){
-		$query = Doctrine_Query::create() -> select("*") -> from("facilities")->where("facility_code='$facility_code'");
+		$query = Doctrine_Query::create() -> select("type, owner") -> from("facilities")->where("facility_code='$facility_code'");
 		$drugs = $query -> execute();
 		$drugs=$drugs->toArray();
 		
 		return $drugs[0];	
 	}	
-else{
-	return NULL;
-}	
+	else{
+		return NULL;
+	}	
 			
 	}
 	

@@ -135,7 +135,8 @@ class Stock_Management extends auto_sms {
 ////////////////////////////////////////////////////////////////////////////////////////
 }
 
-    public function facility_add_stock_data(){
+    public function facility_add_stock_data()
+    {
     	$facility_code=$this -> session -> userdata('news');
 		
 		$data['title'] = "Update Stock Level on First Run";

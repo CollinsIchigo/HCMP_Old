@@ -1,8 +1,7 @@
 <script type="text/javascript" language="javascript" src="<?php echo base_url();  ?>Scripts/jquery.dataTables.js"></script>
 <script type="text/javascript" language="javascript" src="<?php echo base_url();  ?>Scripts/unit_size.js"></script>
 		<style type="text/css" title="currentStyle">
-			
-			@import "<?php echo base_url(); ?>DataTables-1.9.3 /media2/css/jquery.dataTables.css";
+	@import "<?php echo base_url(); ?>DataTables-1.9.3 /media2/css/jquery.dataTables.css";
 			.user{
 	width:50px;
 	background : none;
@@ -66,8 +65,6 @@ return;
         var test=get_unit_quantity(unit_cost)
         document.getElementsByName("actual_quantity["+x+"]")[0].value=test*quantity;
         
-       
-        
  /**************************************************************************************************************/       
         //we need to calculate the total of the order, so we load all of the cost variables    
         //loop through them to get the values sum it to get the total
@@ -103,7 +100,6 @@ return;
 	}
 			
 			 $(function() {
-			 	
 			 			$( "#dialog:ui-dialog" ).dialog( "destroy" );
 		//confirmation modal window
 		$( "#dialog-form-order" ).dialog({
@@ -126,9 +122,6 @@ return;
 			}
 			});
 			 	
-			 	
-			 	
-			 	
 			 				var $myDialog = $('<div></div>')
     .html('<h3 class="text-error">Please confirm if you want to reject and return this order back to the facility<h3>')
     .dialog({
@@ -142,7 +135,8 @@ return;
                 	
                 			
 		$('input:hidden[name=reject_order_status]').val('1');
-		 $(this).dialog("close");
+		
+		alert($('input:hidden[name=reject_order_status]').val());
 		$('#myform').submit();
 		 $('#order_processing').modal();
 		return false;
@@ -156,8 +150,7 @@ return;
 			$( "#approve" )
 			.button()
 			.click(function() {
-				
-		   				$('#user-order tbody').empty();
+	$('#user-order tbody').empty();
 				$('#test-hapa tbody').empty();
 				
 				var cost = document.myform.elements["cost[]"];
@@ -216,9 +209,7 @@ return;
      	 	  $( "#dialog-form-order" ).dialog( "open" ); 		
 				
 			}
-			});		
-			
-			
+			});	
 			
 			$( "#reject" )
 			.button()
@@ -249,9 +240,8 @@ return;
 });
 </script>
 
-<div id="notification">Rationalized Quantities = (Monthly Consumption * 4) - Closing Stock</div>
-
-<div id="dialog-form-order" title="Please Confirm your Order">
+<div id="notification">Order Quantity= (Monthly Consumption * 4) - Closing Stock</div>
+	<div id="dialog-form-order" title="Please Confirm your Order">
 	<table class="table-update"  id='test-hapa'><tbody></tbody></table>
 	<form>
 	<table id="user-order" width="500px" class="table-update">
@@ -270,14 +260,15 @@ return;
 						</table>
 	</form>
 </div>
-<caption><p style="letter-spacing: 1px;font-weight: bold;text-shadow: 0 1px rgba(0, 0, 0, 0.1);font-size: 14px; " >
+<caption>
+	<p style="letter-spacing: 1px;font-weight: bold;text-shadow: 0 1px rgba(0, 0, 0, 0.1);font-size: 14px; " >
 	Facility Order No <?php echo $this->uri->segment(3);?>| Facility MFl code <?php echo $this->uri->segment(4);?>|  
 	<span ><b > Total Order Value </b><b id="t" >  0</b></span> |<span> Drawing Rights Available Balance :<b id="drawing"> </b><br />
 	</p></caption>
 <?php $attributes = array( 'name' => 'myform', 'id'=>'myform');
-	 echo form_open('order_approval/update_order',$attributes); ?>	
-<?php echo form_hidden('f_order_id', $this->uri->segment(3));?>	 
-<?php echo form_hidden('reject_order_status','0');?>	 
+	 echo form_open('order_management/update_order',$attributes); ?>	
+<?php echo form_hidden('f_order_id', $this->uri->segment(3));
+echo form_hidden('rejected_order', $rejected_order);?>	  
 <table id="main1" width="100%">
 	<thead>
 	<tr>
@@ -295,7 +286,7 @@ return;
 					    <th><b>Closing Stock</b></th>
 					    <th><b>No days out of stock</b></th>
 					    <th><b>Historical Consumption</b></th>
-					    <th><b>Rationalized Quantities</b></th>
+					    <th><b>Suggested Order Quantity<</b></th>
 					    <th><b>Order Quantity</b></th>
 					    <th><b>Actual Units</b></th>
 					    <th><b>Order cost(Ksh)</b></th>	
@@ -335,12 +326,7 @@ return;
 		
 		$cost=$drug->Unit_Cost; $t_cost=$cost*$ordered;
 		
-   echo form_hidden('drugName['.$count.']'  ,$drug->Drug_Name).
-   form_hidden('drugCode['.$count.']'  ,$drug->Kemsa_Code).
-   form_hidden('closing_stock_['.$count.']'  ,$c_stock).
-   form_hidden('price['.$count.']'  ,$drug->Unit_Cost).
-   form_hidden('unit_size['.$count.']'  ,$drug->Unit_Size).
-   '<td>'.$drug->Drug_Name.'</td>
+   echo form_hidden('closing_stock_['.$count.']'  ,$c_stock).form_hidden('price['.$count.']'  ,$drug->Unit_Cost).form_hidden('unit_size['.$count.']'  ,$drug->Unit_Size).'<td>'.$drug->Drug_Name.'</td>
          <td>'.$drug->Kemsa_Code.'</td>
 		 <td>'.$drug->Unit_Size.'</td>
 		 <td>'.$drug->Unit_Cost.'</td>';?>
@@ -369,7 +355,7 @@ return;
 <br />
 
 <?php echo form_close(); ?>
-<button class="btn btn-primary"  id="approve">Approve Order</button> <button class="btn btn-danger" id="reject">Reject Order</button>
+<button class="btn btn-primary"  id="approve">Update Order</button> 
 <!--------order processing data---------->
 <div class="modal fade" id="order_processing" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog">

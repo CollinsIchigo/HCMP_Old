@@ -1,7 +1,8 @@
 <?php
-class User extends Doctrine_Record {
-/////
-	public function setTableDefinition() {
+class User extends Doctrine_Record 
+{
+	public function setTableDefinition() 
+	{
 		$this->hasColumn('fname', 'varchar', 255);
 		$this->hasColumn('lname', 'varchar', 255);
 		$this->hasColumn('email', 'string', 255, array('unique' => 'true'));
@@ -16,7 +17,8 @@ class User extends Doctrine_Record {
 		
 	}
 	
-	public function setUp() {
+	public function setUp() 
+	{
 		$this->setTableName('user');
 		$this->actAs('Timestampable');
 		$this->hasMutator('password', '_encrypt_password');
@@ -28,27 +30,32 @@ class User extends Doctrine_Record {
 		
 	}
 
-	protected function _encrypt_password($value) {
+	protected function _encrypt_password($value) 
+	{
 		$salt = '#*seCrEt!@-*%';
 		$this->_set('password', md5($salt . $value));
 		
 	}
 	
-	public static function login($username, $password) {
-		
+	public static function login($username, $password) 
+	{
 		$salt = '#*seCrEt!@-*%';
 		$value=( md5($salt . $password));
 		$query = Doctrine_Query::create() -> select("*") -> from("User") -> where("username = '" . $username . "' and password='". $value ."'");
-
 		$x = $query -> execute();
 		return $x[0];
-		
-		
+				
 	}
 	public static function getsome($id) {
 		$query = Doctrine_Query::create() -> select("fname") -> from("user")->where("id='$id' ");
 		$level = $query -> execute();
 		return $level;
+	}
+	public static function get_user_names($id)
+	{
+		$query = Doctrine_Query::create() -> select("fname, lname") -> from("user")->where("id='$id'");
+		$names = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
+		return $names;
 	}
 	public static function getAll2($facility,$id) {
 		$query = Doctrine_Query::create() -> select("*") -> from("user")->where("usertype_id=2 or usertype_id=5 ")->andWhere("id <> $id and facility='$facility'");

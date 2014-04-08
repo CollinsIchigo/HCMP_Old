@@ -2,6 +2,28 @@
 ob_start();
 class auto_sms extends MY_Controller {
 	
+	var $test_mode=true;
+	
+	
+public function update_stock_out_table(){
+	$in = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
+	select stock_date,facility_code,
+	kemsa_code from facility_stock 
+	where `balance`=0 and `status`=1 
+	group by kemsa_code,facility_code");
+	
+	$jay=count($in);
+	
+	for($i=0;$i<$jay;$i++){
+		Doctrine_Manager::getInstance()->getCurrentConnection()->execute("
+	insert into facility_stock_out_tracker 
+set facility_id='".$in[$i]['facility_code']."', drug_id='".$in[$i]['kemsa_code']."',
+`start_date`='".$in[$i]['stock_date']."', status='stocked out' ");
+	
+		
+	}
+}
+	
 public function send_stock_update_sms(){
 	
 
@@ -35,15 +57,14 @@ public function send_order_sms(){
 	   $this->send_sms(substr($phone,0,-1),$message);
 
 	}
-public function send_order_approval_sms(){
-	
+public function send_order_approval_sms($facility_code,$status){
 
-       $facility_name = $this -> session -> userdata('full_name');
-	   $facility_code=$this -> session -> userdata('news');
-	   $data=User::getUsers($facility_code)->toArray();
-
-	   $message= $facility_name." order has been approved. HCMP";
+	  
        
+       $message=($status==1)?$facility_name." order has been rejected. HCMP":
+       $facility_name." order has been approved. HCMP";
+ 
+        $data=User::getUsers($facility_code)->toArray();
 	   $phone=$this->get_facility_phone_numbers($facility_code);
 	   $phone .=$this->get_ddp_phone_numbers($data[0]['district']);
 
@@ -138,7 +159,7 @@ public function send_sms($phones,$message) {
  	$phone_numbers=explode("+", $spam_sms);
 	
 	foreach($phone_numbers as $key=>$user_no):
-	break;
+
 	file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$user_no&text=$message");
 		
 	endforeach;
@@ -146,9 +167,8 @@ public function send_sms($phones,$message) {
 	}
 public function send_order_submission_email($message,$subject,$attach_file){
 	 
-
-	  $cc_email='anganga.pmo@gmail.com,sochola06@yahoo.com';
-	// $cc_email="kariukijackson@gmail.com";
+      $cc_email=($this->test_mode)?'kariukijackson@gmail.com': 'anganga.pmo@gmail.com,sochola06@yahoo.com';
+	 
 		
 	   $facility_code=$this -> session -> userdata('news');
 	   
@@ -162,37 +182,37 @@ public function send_order_submission_email($message,$subject,$attach_file){
 		return $this->send_email(substr($email_address,0,-1),$message, $subject,$attach_file,null,$cc_email);
 	
 }
-public function send_order_approval_email($message,$subject,$attach_file,$facility_code){
+public function send_order_approval_email($message,$subject,$attach_file,$facility_code,$reject_order=null){
 	  
-
-		
-	   $cc_email='anganga.pmo@gmail.com,sochola06@yahoo.com,';
-	   //$cc_email="kariukijackson@gmail.com,kariukijackson@gmail.com,";
+ $cc_email=($this->test_mode)?'kariukijackson@gmail.com': 'anganga.pmo@gmail.com,sochola06@yahoo.com';
 	   
-	   $email_address="
-shamim.kuppuswamy@kemsa.co.ke,
+	  
+ $data=User::getUsers($facility_code)->toArray();
+  if($reject_order==1):
+	  $email_address=$this->get_facility_email($facility_code);
+	  $cc_email .=$this->get_ddp_email($data[0]['district']);
+	  
+	  else:
+		  
+		  $email_address=($this->test_mode)?'kariukijackson@gmail.com': 'shamim.kuppuswamy@kemsa.co.ke,
 samuel.wataku@kemsa.co.ke,
 jmunyu@kemsa.co.ke,
 imugada@kemsa.co.ke,
 laban.okune@kemsa.co.ke,
-samuel.wataku@kemsa.co.ke,
-";
-	   //$email_address="kariukijackson@gmail.com,kariukijackson@gmail.com,";
-	   $data=User::getUsers($facility_code)->toArray();
-	   
-	   $cc_email .=$this->get_ddp_email($data[0]['district']);
-	   $cc_email .=$this->get_facility_email($facility_code);
-	   
-	   
-		
-		
+samuel.wataku@kemsa.co.ke,'; 
+
+	  $cc_email .=$this->get_ddp_email($data[0]['district']);
+	   $cc_email .=$this->get_facility_email($facility_code); 
+  endif;
+	  
+
 		return $this->send_email(substr($email_address,0,-1),$message, $subject,$attach_file,null,substr($cc_email,0,-1));
 	
 }
 public function send_order_delivery_email($message,$subject,$attach_file=null){
 
-	   $cc_email='anganga.pmo@gmail.com,sochola06@yahoo.com,';
-		// $cc_email="kariukijackson@gmail.com,kariukijackson@gmail.com,";
+$cc_email=($this->test_mode)?'kariukijackson@gmail.com': 'anganga.pmo@gmail.com,sochola06@yahoo.com';
+
 	   $facility_code=$this -> session -> userdata('news');
 	   
 	   $data=User::getUsers($facility_code)->toArray();
@@ -207,6 +227,21 @@ public function send_order_delivery_email($message,$subject,$attach_file=null){
 
 public function send_email($email_address,$message,$subject,$attach_file=NULL,$bcc_email=NULL,$cc_email=NULL){
         	return true;
+			
+			
+			$mail_list=($this->test_mode)?'kariukijackson@gmail.com,kariukijackson@ymail.com': 'rkihoto@clintonhealthaccess.org,
+  		eunicew2000@yahoo.com,
+  		gmacharia@clintonhealthaccess.org,
+  		Jhungu@clintonhealthaccess.org,
+  		nmaingi@strathmore.edu,
+  		bwariari@clintonhealthaccess.org,
+  		kyalocatherine@gmail.com,
+  		ashminneh.mugo@gmail.com,
+  		smutheu@clintonhealthaccess.org,
+  		kariukijackson@gmail.com,
+  		kelvinmwas@gmail.com,
+		collinsojenge@gmail.com';
+			
 		$fromm='hcmpkenya@gmail.com';
 		$messages=$message;
   		$config['protocol']    = 'smtp';
@@ -230,37 +265,11 @@ public function send_email($email_address,$message,$subject,$attach_file=NULL,$b
   		isset($cc_email)? $this->email->cc($cc_email): //
   		
   		(isset($bcc_email))?
-  		$this->email->bcc("
-  		rkihoto@clintonhealthaccess.org,
-  		eunicew2000@yahoo.com,
-  		gmacharia@clintonhealthaccess.org,
-  		Jhungu@clintonhealthaccess.org,
-  		nmaingi@strathmore.edu,
-  		bwariari@clintonhealthaccess.org,
-  		kyalocatherine@gmail.com,
-  		ashminneh.mugo@gmail.com,
-  		smutheu@clintonhealthaccess.org,
-  		kariukijackson@gmail.com,
-  		kelvinmwas@gmail.com,".$bcc_email)
-  		/*$this->email->bcc('
-kariukijackson@gmail.com,kariukijackson@gmail.com,
-  		kelvinmwas@gmail.com')	*/
+  		$this->email->bcc($mail_list.$bcc_email)
+  		
   		:
-  		$this->email->bcc('
-		rkihoto@clintonhealthaccess.org,
-  		eunicew2000@yahoo.com,
-		Jhungu@clintonhealthaccess.org,
-		gmacharia@clintonhealthaccess.org,
-  		nmaingi@strathmore.edu,
-  		bwariari@clintonhealthaccess.org,
-  		kyalocatherine@gmail.com,
-  		ashminneh.mugo@gmail.com,
-  		smutheu@clintonhealthaccess.org,
-  		kariukijackson@gmail.com,
-  		kelvinmwas@gmail.com')
-		/*$this->email->bcc('
-kariukijackson@gmail.com,kariukijackson@gmail.com,
-  		kelvinmwas@gmail.com')*/
+  		$this->email->bcc(substr($mail_list,0,-1))
+
 		;
   		
 		 (isset($attach_file))? $this->email->attach($attach_file) :	'';

@@ -1,14 +1,12 @@
 <?php
-$current_year = date('Y');
-$current_month = date('F');
-$earliest_year = $current_year - 5;
 
-
+	$current_year = date('Y');
+	$current_month = date('F');
+	$earliest_year = $current_year - 5;
 
 ?>
 <script src="<?php echo base_url().'Scripts/accordion.js'?>" type="text/javascript"></script> 
 <SCRIPT LANGUAGE="Javascript" SRC="<?php echo base_url(); ?>Scripts/FusionCharts/FusionCharts.js"></SCRIPT>
-
 <script type="text/javascript">
 	$(function() {
 
@@ -44,7 +42,19 @@ $earliest_year = $current_year - 5;
              }
          });
     });
-			$("#districtreport").click(function(){
+    
+    $("#malaria").click(function(){
+      var url = "<?php echo base_url().'raw_data/malaria_data'?>";
+      var data_1="from= "+$('#from').val()+"&to="+ $('#to').val() +"&facilitycode="+ $('#facilitycode').val();
+       ajax_request (url,data_1);
+    });
+    $("#malaria_data").click(function(){
+      var url = "<?php echo base_url().'raw_data/malaria_data_report'?>";
+      var data_1="from= "+$('#from').val()+"&to="+ $('#to').val()+"&facilitycode="+ $('#facilitycode').val();
+       ajax_request (url,data_1);
+    });
+    
+	$("#districtreport").click(function(){
       var url = "<?php echo base_url().'report_management/dist_contraceptives_consumption_report'?>";
       //alert (url);
         $.ajax({
@@ -80,6 +90,24 @@ $earliest_year = $current_year - 5;
 				}
 			});
 					
+			});
+				$("#from").datepicker({
+				defaultDate : "+1w",
+				changeMonth : true,
+				changeYear : true,
+				numberOfMonths : 1,
+				onClose : function(selectedDate) {
+					$("#to,#to_order,#tocommodity").datepicker("option", "minDate", selectedDate);
+				}
+			});
+			$("#to").datepicker({
+				defaultDate : "+1w",
+				changeMonth : true,
+				changeYear : true,
+				numberOfMonths : 1,
+				onClose : function(selectedDate) {
+					$("#from,#from_order,#fromcommodity").datepicker("option", "maxDate", selectedDate);
+				}
 			});
 	}); 
 </script>
@@ -206,22 +234,56 @@ background:url('<?php echo base_url()?>
 
 </style>
 <div class="leftpanel">
- 	<h3 class="accordion" id="section1">Division of Malaria Control<span></span><h3>
- <div class="container">
-     <div class="content">
-     	<h2>Click below to View the Report for <?php echo $current_month?> <?php echo $current_year?></h2>
-     <button id="malaria" class="awesome blue" style="display: block; margin-left:20%; margin-top: 1em;">View Report</button>
-    
-     </div>
- </div>
+<h3 class="accordion" id="section1">Division of Malaria Control<span></span><h3>
+	 <div class="container">
+	     <div class="content">
+	     	<h2>Click below to View the Report for <?php echo $current_month?> <?php echo $current_year?></h2>
+	     	<button id="malaria" class="awesome blue" style="display: block; margin-left:20%; margin-top: 1em;">View Report</button>
+	    
+	     </div>
+	 </div>
 
-     <h3 class="accordion" id="section2">Division of Reproductive Health<span></span><h3>
- <div class="container">
- 	<div class="content">
- 		<h2>Click below to View the D-CDRR for <?php echo $current_month?> <?php echo $current_year?></h2>
-     <button id="districtreport" class="awesome blue" style="display: block; margin-left:20%; margin-top: 1em;">View Report</button>
- </div>
- </div>
+<h3 class="accordion" id="section2">Division of Reproductive Health<span></span><h3>
+	 <div class="container">
+	 	<div class="content">
+	 		<h2>Click below to View the D-CDRR for <?php echo $current_month?> <?php echo $current_year?></h2>
+	     	<button id="districtreport" class="awesome blue" style="display: block; margin-left:20%; margin-top: 1em;">View Report</button>
+	 </div>
+	 </div>
+<h3 class="accordion" id="section2">Facility Reports<span></span><h3>
+	<div class="content">
+		 <select id="desc" name="desc" class="dropdownsize">
+		 	
+		 	<option>Select Facility</option>
+		 	<?php 
+				foreach ($facility_name as $facility) 
+				{
+					$id = $facility -> id;
+					$name = $facility -> facility_name;
+										
+					?>
+					<option value="<?php echo $id; ?>" id ="facility_name"><?php echo $name; ?></option>
+					
+			<?php } ?>		 
+		</select>
+		
+		<h2>Click below to choose date range</h2>
+		<input type="text" size="10"  value="" id="from" placeholder="From" />
+		<input type="text" size="10"  value="" id="to" placeholder="To"/>
+		<button class="awesome blue" id="malaria_data" style="margin-left:0%">Generate Report</button>
+		<?php 
+			$attributes = array( 'name' => 'myform', 'id'=>'myform');
+			echo form_open('/',$attributes); 
+			
+			?>	
+		<button id="downloader" class="btn" >Download PDF<i class="icon-circle-arrow-down" style="margin-left: 3px"></i></button>
+		
+		<?php  
+			echo form_close();
+				
+			?>
+		<input type="hidden"  value="<?php echo $id ?>" id="facilitycode" name="facilitycode" />
+    </div>
 </div>
  <div class="reportDisplay">
 	

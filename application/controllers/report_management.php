@@ -1,27 +1,32 @@
 <?php
 if (!defined('BASEPATH'))
-	exit('No direct script access allowed');
+	exit('No direct 
+	script access allowed');
 include_once('auto_sms.php');
-class Report_Management extends auto_sms {
-	function __construct() {
+class Report_Management extends auto_sms 
+{
+	function __construct() 
+	{
 		parent::__construct();
 		$this->load->helper('url');
 		
 	}
-		public function get_order_details_report(){
-$order_id=0;
-$kemsa_id=NULL;		
-$order_id=$this->uri->segment(3);	
-$kemsa_id=$this->uri->segment(4);
-$detail_list=Orderdetails::get_order($order_id);	
-$table_body="";
-$total_fill_rate=0;
-$order_value =0;
-$tester= count($detail_list);
-      if($tester==0){
-      	
-      }
-	  else{
+	
+	public function get_order_details_report()
+	{
+		$order_id=0;
+		$kemsa_id=NULL;		
+		$order_id=$this->uri->segment(3);	
+		$kemsa_id=$this->uri->segment(4);
+		$detail_list=Orderdetails::get_order($order_id);	
+		$table_body="";
+		$total_fill_rate=0;
+		$order_value =0;
+		$tester= count($detail_list);
+		      if($tester==0){
+		      	
+		      }
+			  else{
 	  	
 
       
@@ -49,9 +54,9 @@ $tester= count($detail_list);
 			 $kemsa_code=$drug->Kemsa_Code;
 			 $unit_size=$drug->Unit_Size;
 			 
-			foreach($drug->Category as $cat){
-				
-			$cat_name=$cat;		
+			foreach($drug->Category as $cat)
+			{
+				$cat_name=$cat;		
 			}	 
 		}
 		 switch ($fill_rate) {
@@ -159,7 +164,9 @@ $report_type='Download PDF';
 $this->generate_pdf($report_name,$title,$html_data,$report_type);
 	}
 	
- public function commodity_excel(){
+ 	public function commodity_excel()
+ 	{
+ 		
  	$drug_categories= Drug_Category::getAll();;
 	$data='<table style="margin-left: 0;" width="80%">';
 	
@@ -192,7 +199,8 @@ $data .='</table>';
           header("Content-Disposition: attachment; filename=$filename.xls");
           echo "$data"; 
  }
-	public function index() {
+	public function index() 
+	{
 		$data['title'] = "System Reports";
 		$data['content_view'] = "reports_v";
 		$data['banner_text'] = "System Reports";
@@ -242,7 +250,6 @@ $data .='</table>';
 	}
 	public function reports_Home()
 	{
-		
 		$data['title'] = "Reports Home";
 		$data['quick_link'] = "Reports";
 		$data['content_view'] = "reportsmain";
@@ -252,7 +259,246 @@ $data .='</table>';
 		$data['link'] = "Reports";
 		$this -> load -> view("template", $data);
 	}
-	public function division_reports(){
+	public function reports_data()
+	{
+		$data['title'] = "Facility Reports Home";
+		//$data['quick_link'] = "facility/facility_reports/malaria_report";
+		$data['content_view'] = "facility/facility_reports/facility_reports_main";
+		$data['drugs'] = Drug::getAll();
+		//$data['link'] = "facility/facility_reports/malaria_report";   
+		$data['banner_text'] = "Reports";
+		$data['link'] = "Reports";
+		$this -> load -> view("template", $data);
+	}
+	public function write_report()
+	{
+		$malaria_name =  Malaria_Drugs::getName();
+		$malaria_array = array();
+		$counter = 0;
+		
+		foreach ($malaria_name as $drug)
+		{
+			$malaria_drugs = array();
+			$malaria_drugs = $drug;
+			$malaria_array[$counter] = $malaria_drugs;
+			$counter++;
+			
+		}
+		$date= date('Y-m-d');
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$district = isset($district_id)? $facility_code :$this -> session -> userdata('district');
+		$county = $this->session->userdata('county_name');
+		$facility_code = $this -> session -> userdata('news');
+		$facility_detail = Facilities::get_facility_name_($facility);
+		
+		$facility_type = Facilities::get_facility_type_($facility);
+		$district = $facility_detail['district'];
+		$district_name = Districts::get_district_name_($district);
+		
+		$data['drug_rows'] = Malaria_Drugs::getName();
+		$data['malaria_data'] = $malaria_array;
+		$data['countyname'] =	$county;
+		$data['districtname'] =	$district_name[0]['district'];
+		$data['facility_type']= $facility_type['type'];
+		$data['owner'] = $facility_type['owner'];
+       	$data['facility_data'] = $facility_detail;
+		$data['title'] = "Malaria Data";
+		$data['content_view'] = "facility/facility_reports/malaria_report";
+		$data['banner_text'] = "Malaria Report";
+		$data['link'] = "facility/facility_reports/malaria_report";
+		$data['quick_link'] = "facility_report_expired_v";		
+		isset($facility_code)? $this -> load -> view("template", $data) :$this -> load -> view("facility/facility_reports/malaria_report", $data);
+	}
+	public function save_report ()
+	{
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$user_id = $this -> session -> userdata('user_id');
+		//Get the values posted by the form
+		$BB = $this->input->post('Beginning_Balance');
+		for($x=0; $x<count($BB); $x++)
+		{
+			$QR = $this->input->post('Quantity_Received');
+			$TQ = $this->input->post('Total_Quantity_Dispensed');
+			$LExcl = $this->input->post('Losses_Excluding_Expiries');
+			$PAdj = $this->input->post('Positive_Adjustments');
+			$NAdj = $this->input->post('Negative_Adjustments');
+			$PC = $this->input->post('Physical_Count');
+			$QED = $this->input->post('Quantity_Expired_Drugs');
+			$M6M = $this->input->post('6Months_To_Expiry');
+			$DOS = $this->input->post('Days_Out_Stock');
+			$T = $this->input->post('Report_Total');
+			$kemsa = $this->input->post('kemsa');
+			$to_date = $this->input->post('to_date');
+			$from_date = $this->input->post('from_date');
+			$kemsa = $this->input->post('kemsa');
+			
+			$save_time = date('Y-m-d H:i:s');
+			$from_date = date('Y-m-d', strtotime($this->input->post('to')));
+			$to_date =	date('Y-m-d', strtotime($this->input->post('from')));
+		
+		  	$dbData[$x]= array('beginning_balance'=>$BB[$x],
+		  	'quantity_balance'=> $QR[$x],
+		  	'negative_adjustments'=>$NAdj[$x],
+		  	'quantity_expired'=>$QED[$x],
+		  	'days_out_stock'=>$DOS[$x],
+			'physical_count'=>$PC[$x],
+			'total'=>$T[$x],
+			'amount_near_expiry'=>$M6M[$x],
+			'positive_adjustment'=>$PAdj[$x],
+			'quantity_received'=>$QR[$x],
+			'total_quantity_dispensed'=>$TQ[$x],
+			'losses'=>$LExcl[$x],
+			'from_date'=>$from_date,
+			'to_date'=>$to_date,
+			'user_id'=>$user_id,
+			'kemsa_code'=>$kemsa[$x],
+			'report_time'=>$save_time,
+			'facility_id'=>$facility);
+			
+			
+		  }
+
+		$this->db->insert_batch('malaria_data',$dbData);
+		 
+		$date = date('Y-m-d');
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$district = isset($district_id)? $facility_code :$this -> session -> userdata('district');
+		$facility_detail = Facilities::get_facility_name_($facility);
+		$username = User::get_user_names($user_id);
+		$data['user_data'] = Malaria_Data::getall($user_id);
+		$data['facility_data'] = $facility_detail;
+		$data['title'] = "Report Submitted";
+		$data['content_view'] = "facility/facility_reports/view_facility_reports";
+		$data['banner_text'] = "Report";
+		$data['link'] = "facility/facility_reports/view_facility_reports";
+		$data['quick_link'] = "view_facility_reports";	
+		$this -> load -> view("template", $data) ;
+		//echo "report_management/view_reports";	
+		//isset($facility_code)? $this -> load -> view("template", $data) :$this -> load -> view("facility/facility_reports/view_facility_reports", $data);
+			
+		
+	}
+	public function save_report2 ()
+	{
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$user_id = $this -> session -> userdata('user_id');
+		$Beginning_Balance = $this->input->post('Beginning_Balance');
+		for($x=0; $x<count($Beginning_Balance); $x++)
+		{
+			$save_time = $this->input->post('report_time');
+			$Quantity_Received = $this->input->post('Quantity_Received');
+			$Total_Quantity_Dispensed = $this->input->post('Total_Quantity_Dispensed');
+			$Losses_Excluding_Expiries = $this->input->post('Losses_Excluding_Expiries');
+			$Positive_Adjustments = $this->input->post('Positive_Adjustments');
+			$Negative_Adjustments = $this->input->post('Negative_Adjustments');
+			$Physical_Count = $this->input->post('Physical_Count');
+			$Quantity_Expired_Drugs= $this->input->post('Quantity_Expired_Drugs');
+			$Months_To_Expiry = $this->input->post('6Months_To_Expiry');
+			$Days_Out_Stock = $this->input->post('Days_Out_Stock');
+			$Report_Total = $this->input->post('Report_Total');
+			$kemsa = $this->input->post('kemsa');
+			$idval = $this->input->post('id_value');
+			$date1 = $this->input->post('to');
+			
+			$from_date = date('Y-m-d', strtotime($this->input->post('to')));
+			$to_date =	date('Y-m-d', strtotime($this->input->post('from')));
+			
+			$save_time2 = date('Y-m-d H:i:s',strtotime($save_time[1]));	
+		  	
+			$q = Doctrine_Manager::getInstance()->getCurrentConnection();
+			$result = $q->execute("UPDATE `malaria_data` SET
+					`beginning_balance`=".$Beginning_Balance[$x].",
+					`quantity_balance`=".$Quantity_Received[$x].",`quantity_expired`=".$Quantity_Expired_Drugs[$x].",
+					`physical_count`=".$Physical_Count[$x].",`days_out_stock`=".$Days_Out_Stock[$x].",
+					`amount_near_expiry`=".$Losses_Excluding_Expiries[$x].",`positive_adjustment`=".$Positive_Adjustments[$x].",
+					`negative_adjustments`=".$Negative_Adjustments[$x].",`quantity_received`=".$Quantity_Received[$x].",
+					`total_quantity_dispensed`=".$Total_Quantity_Dispensed[$x].",`losses`=".$Losses_Excluding_Expiries[$x].",
+					`total`=".$Report_Total[$x].",`from_date`=".$from_date.",`report_time`='".$save_time2."',`to_date`=".$to_date." WHERE `id`=".$idval[$x]);
+					
+					
+		  }
+			
+					 
+
+		 
+		$date= date('Y-m-d');
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$district = isset($district_id)? $facility_code :$this -> session -> userdata('district');
+		$facility_detail = Facilities::get_facility_name_($facility);
+		$username = User::get_user_names($user_id);
+		$data['user_data'] = Malaria_Data::getall($user_id);
+		$data['facility_data'] = $facility_detail;
+		$data['title'] = "Report Submitted";
+		$data['content_view'] = "facility/facility_reports/view_facility_reports";
+		$data['banner_text'] = "Report";
+		$data['link'] = "facility/facility_reports/view_facility_reports";
+		$data['quick_link'] = "view_facility_reports";	
+		$this -> load -> view("template", $data) ;
+		
+		
+	}
+	public function view_reports()
+	{
+		$date = date('Y-m-d');
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$district = isset($district_id)? $facility_code :$this -> session -> userdata('district');
+		
+		$facility_detail = Facilities::get_facility_name_($facility);
+		$user_id = $this -> session -> userdata('user_id');
+		$username = User::get_user_names($user_id);
+		$data['user_data'] = Malaria_Data::getall($user_id);
+		$data['facility_data'] = $facility_detail;
+		$data['title'] = "Facility Reports";
+		$data['content_view'] = "facility/facility_reports/view_facility_reports";
+		$data['banner_text'] = "Expired Products";
+		$data['link'] = "facility/facility_reports/view_facility_reports";
+		$data['quick_link'] = "view_facility_reports";	
+		$this -> load -> view("facility/facility_reports/view_facility_reports", $data) ;
+		
+	}
+	public function edit_report($time)
+	{
+		$time = urldecode($time);
+		
+		$malaria_name =  Malaria_Drugs::getName();
+		$malaria_array = array();
+			
+		
+		$facility = isset($facility_code)? $facility_code :$this -> session -> userdata('news');
+		$district = isset($district_id)? $facility_code :$this -> session -> userdata('district');
+		$facility_detail = Facilities::get_facility_name_($facility);
+		$user_id = $this -> session -> userdata('user_id');
+		$facility_detail = Facilities::get_facility_name_($facility);
+		$facility_type = Facilities::get_facility_type_($facility);
+		
+		$district = $facility_detail['district'];
+		$district_name = Districts::get_district_name_($district);
+		$county = $this->session->userdata('county_name');	
+		$data['drug_rows'] = Malaria_Drugs::getName();
+		$data['malaria_data'] = $malaria_array;
+		$data['countyname'] =	$county;
+		$data['districtname'] =	$district_name[0]['district'];
+		$data['facility_type']= $facility_type['type'];
+		$data['owner'] = $facility_type['owner'];
+       	$data['facility_data'] = $facility_detail;
+		$data['where_time'] = $time;
+		$data['records'] = Malaria_Data::getall_time($time);
+		$data['facility_data'] = $facility_detail;
+		$data['user_data'] = Malaria_Data::getall($user_id);
+		$data['title'] = "Edit Submitted Report";
+		$data['content_view'] = "facility/facility_reports/test_report";
+		$data['banner_text'] = "Edit Malaria Report";
+		$data['link'] = "facility/facility_reports/test_report";
+		$data['quick_link'] = "test_report";	
+		$this -> load -> view("template", $data);	
+		//isset($facility_code)? $this -> load -> view("template", $data) :$this -> load -> view("facility/facility_reports/test_report", $data);
+		
+		
+	}
+	public function division_reports()
+	{
+		$facility = $this -> session -> userdata('district1');
+		$data['facility_name'] = Facilities::getFacilities($facility);
 		$data['title'] = "Division Reports";
 		$data['quick_link'] = "Reports";
 		$data['content_view'] = "district/district_report/divisionreports_v";
@@ -260,15 +506,18 @@ $data .='</table>';
 		$data['link'] = "Reports";
 		$this -> load -> view("template", $data);
 	}
-	public function consum_v(){                   //New
-               $data['title'] = "Stock Control Card";
-			   $data['drugs'] = Drug::getAll();
-			   $data['content_view'] = "stockcontrolC";
-               $data['banner_text'] = "Stock Control Card";
-               $data['link'] = "order_management";
-               $data['quick_link'] = "facility_consumption";
-               $this -> load -> view("template", $data);           
-}
+	public function consum_v()
+	{
+       //New
+       $data['title'] = "Stock Control Card";
+	   $data['drugs'] = Drug::getAll();
+	   $data['content_view'] = "stockcontrolC";
+       $data['banner_text'] = "Stock Control Card";
+       $data['link'] = "order_management";
+       $data['quick_link'] = "facility_consumption";
+       $this -> load -> view("template", $data);  
+	            
+	}
 public function malaria_report(){   
 		$facilityCode= $this-> session-> userdata('news');              //New
     	$current_year = date('Y');
@@ -282,9 +531,10 @@ public function malaria_report(){
 		$this -> load -> view("template", $data);
 }
 
-public function dist_malaria_report(){
-	$this -> load -> view("district/district_report/malaria_report_v");
-} 
+	public function dist_malaria_report()
+	{
+		$this -> load -> view("district/district_report/malaria_report_v");
+	} 
 
 public function dist_contraceptives_consumption_report(){
 	$this -> load -> view("district/district_report/facility_contraceptives_v");
@@ -408,7 +658,8 @@ public function generate_malaria_excel($r_name,$title,$data){
           header("Content-Disposition: attachment; filename=$filename.xls");
           echo "$data"; 
 }
-public function generate_malaria_pdf($r_name,$title,$data,$display_type, $current_month, $current_year){
+public function generate_malaria_pdf($r_name,$title,$data,$display_type, $current_month, $current_year)
+{
 		$current_year = date('Y');
 		$current_month = date('F');
 		$facility_code=$this -> session -> userdata('news');

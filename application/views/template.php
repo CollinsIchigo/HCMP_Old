@@ -1,11 +1,14 @@
 <?php
-if (!$this -> session -> userdata('user_id')) {
+if (!$this -> session -> userdata('user_id')) 
+{
 	redirect("user_management/login");
 }
-if (!isset($link)) {
+if (!isset($link)) 
+{
 	$link = null;
 }
-if (!isset($quick_link)) {
+if (!isset($quick_link)) 
+{
 	$quick_link = null;
 }
 $access_level = $this -> session -> userdata('user_indicator');
@@ -70,6 +73,8 @@ if ($access_level == "dpp") {
 <script src="<?php echo base_url().'Scripts/jquery.js'?>" type="text/javascript"></script> 
 <script src="<?php echo base_url();?>Scripts/HighCharts/highcharts.js"></script>
 <script src="<?php echo base_url();?>Scripts/HighCharts/modules/exporting.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>Scripts/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>Scripts/jquery-ui.js"></script>
 <!--<script src="<?php echo base_url().'Scripts/jquery.form.js'?>" type="text/javascript"></script> -->
 <script src="<?php echo base_url().'Scripts/jquery-ui.js'?>" type="text/javascript"></script>
 <!--<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>-->
@@ -155,6 +160,7 @@ if (isset($styles)) {
  * Auto logout
  */
 var timer = 0;
+
 function set_interval() {
 	showTime()
 	// the interval 'timer' is set as soon as the page loads
@@ -218,7 +224,7 @@ return i;
 </head>
  
 <body onload="set_interval()" onmouseover="reset_interval()" onclick="reset_interval()">
-
+<input type="hidden" id="base_url" value="<?php echo base_url(); ?>"/>
 <div id="wrapper">
 	<div id="top-panel" style="margin:0px;">
 
